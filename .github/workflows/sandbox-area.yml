@@ -44,6 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     if: needs.prerequisites.outputs.runjobs
     steps:
+      - uses: actions/checkout@v3
       - name: Run Trivy vulnerability scanner in container mode
         uses: aquasecurity/trivy-action@master
         with:
