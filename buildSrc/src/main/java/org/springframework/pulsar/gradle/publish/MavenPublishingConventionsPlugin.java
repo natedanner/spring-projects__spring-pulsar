@@ -63,17 +63,17 @@ public class MavenPublishingConventionsPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
-		project.getPlugins().withType(MavenPublishPlugin.class).all((mavenPublish) -> {
+		project.getPlugins().withType(MavenPublishPlugin.class).all(mavenPublish -> {
 			PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
 			if (project.hasProperty("deploymentRepository")) {
-				publishing.getRepositories().maven((mavenRepository) -> {
+				publishing.getRepositories().maven(mavenRepository -> {
 					mavenRepository.setUrl(project.property("deploymentRepository"));
 					mavenRepository.setName("deployment");
 				});
 			}
 			publishing.getPublications().withType(MavenPublication.class)
-					.all((mavenPublication) -> customizeMavenPublication(mavenPublication, project));
-			project.getPlugins().withType(JavaPlugin.class).all((javaPlugin) -> {
+					.all(mavenPublication -> customizeMavenPublication(mavenPublication, project));
+			project.getPlugins().withType(JavaPlugin.class).all(javaPlugin -> {
 				JavaPluginExtension extension = project.getExtensions().getByType(JavaPluginExtension.class);
 				extension.withJavadocJar();
 				extension.withSourcesJar();
@@ -84,12 +84,12 @@ public class MavenPublishingConventionsPlugin implements Plugin<Project> {
 	private void customizeMavenPublication(MavenPublication publication, Project project) {
 		// Skip the fake 'hiddenMavenJava' publication otherwise when the actual 'mavenJava' publication
 		// comes back through here it will fail w/ an attempt to modify an immutable configuration.
-		if (publication.getName() == "hiddenMavenJava") {
+		if ("hiddenMavenJava".equals(publication.getName())) {
 			return;
 		}
 		customizePom(publication.getPom(), project);
 		project.getPlugins().withType(JavaPlugin.class)
-				.all((javaPlugin) -> customizeJavaMavenPublication(publication, project));
+				.all(javaPlugin -> customizeJavaMavenPublication(publication, project));
 		suppressMavenOptionalFeatureWarnings(publication);
 	}
 
@@ -106,10 +106,10 @@ public class MavenPublishingConventionsPlugin implements Plugin<Project> {
 
 	private void customizeJavaMavenPublication(MavenPublication publication, Project project) {
 		addMavenOptionalFeature(project);
-		publication.versionMapping((strategy) -> strategy.usage(Usage.JAVA_API, (mappingStrategy) -> mappingStrategy
+		publication.versionMapping(strategy -> strategy.usage(Usage.JAVA_API, mappingStrategy -> mappingStrategy
 				.fromResolutionOf(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME)));
 		publication.versionMapping(
-				(strategy) -> strategy.usage(Usage.JAVA_RUNTIME, VariantVersionMappingStrategy::fromResolutionResult));
+				strategy -> strategy.usage(Usage.JAVA_RUNTIME, VariantVersionMappingStrategy::fromResolutionResult));
 	}
 
 	/**
@@ -120,7 +120,7 @@ public class MavenPublishingConventionsPlugin implements Plugin<Project> {
 	private void addMavenOptionalFeature(Project project) {
 		JavaPluginExtension extension = project.getExtensions().getByType(JavaPluginExtension.class);
 		extension.registerFeature("mavenOptional",
-				(feature) -> feature.usingSourceSet(extension.getSourceSets().getByName("main")));
+				feature -> feature.usingSourceSet(extension.getSourceSets().getByName("main")));
 		AdhocComponentWithVariants javaComponent = (AdhocComponentWithVariants) project.getComponents()
 				.findByName("java");
 		javaComponent.addVariantsFromConfiguration(
@@ -159,19 +159,19 @@ public class MavenPublishingConventionsPlugin implements Plugin<Project> {
 	}
 
 	private void customizeLicences(MavenPomLicenseSpec licences) {
-		licences.license((licence) -> {
+		licences.license(licence -> {
 			licence.getName().set("Apache License, Version 2.0");
 			licence.getUrl().set("https://www.apache.org/licenses/LICENSE-2.0");
 		});
 	}
 
 	private void customizeDevelopers(MavenPomDeveloperSpec developers) {
-		developers.developer((developer) -> {
+		developers.developer(developer -> {
 			developer.getId().set("schacko");
 			developer.getName().set("Soby Chacko");
 			developer.getEmail().set("chackos@vmware.com");
 		});
-		developers.developer((developer) -> {
+		developers.developer(developer -> {
 			developer.getId().set("onobc");
 			developer.getName().set("Chris Bono");
 			developer.getEmail().set("cbono@vmware.com");

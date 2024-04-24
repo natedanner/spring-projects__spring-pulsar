@@ -813,7 +813,7 @@ class ReactivePulsarListenerTests extends ReactivePulsarListenerTestsBase {
 					consumerCustomizer = "subscriptionInitialPositionEarliest", concurrency = "100",
 					useKeyOrderedProcessing = "true")
 			Mono<Void> listen2(String message) {
-				if (message.equals("first")) {
+				if ("first".equals(message)) {
 					// if message processing is not ordered by keys, "first" will be added
 					// to the queue after "second"
 					return Mono.delay(Duration.ofMillis(1000)).doOnNext(m -> queue.add(message)).then();
@@ -839,7 +839,7 @@ class ReactivePulsarListenerTests extends ReactivePulsarListenerTestsBase {
 			void whenTypeNotSetAnywhereThenFallbackTypeIsUsed(
 					@Autowired ConsumerTrackingReactivePulsarConsumerFactory<String> consumerFactory) throws Exception {
 				assertThat(consumerFactory.topicNameToConsumerSpec).hasEntrySatisfying("rpl-typeNotSetAnywhere-topic",
-						(consumerSpec) -> assertThat(consumerSpec.getSubscriptionType())
+						consumerSpec -> assertThat(consumerSpec.getSubscriptionType())
 							.isEqualTo(SubscriptionType.Exclusive));
 				pulsarTemplate.send("rpl-typeNotSetAnywhere-topic", "hello-rpl-typeNotSetAnywhere");
 				assertThat(latchTypeNotSet.await(10, TimeUnit.SECONDS)).isTrue();
@@ -905,7 +905,7 @@ class ReactivePulsarListenerTests extends ReactivePulsarListenerTestsBase {
 
 				@Bean
 				ReactiveMessageConsumerBuilderCustomizer<String> consumerFactoryDefaultSubTypeCustomizer() {
-					return (b) -> b.subscriptionType(SubscriptionType.Shared);
+					return b -> b.subscriptionType(SubscriptionType.Shared);
 				}
 
 				@ReactivePulsarListener(topics = "rpl-typeSetConsumerFactory-topic",
@@ -971,8 +971,8 @@ class ReactivePulsarListenerTests extends ReactivePulsarListenerTestsBase {
 
 		private void storeSpec(ReactiveMessageConsumer<T> consumer) {
 			var consumerSpec = (ReactiveMessageConsumerSpec) ReflectionTestUtils.getField(consumer, "consumerSpec");
-			var topicNamesKey = !ObjectUtils.isEmpty(consumerSpec.getTopicNames()) ? consumerSpec.getTopicNames().get(0)
-					: "no-topics-set";
+			var topicNamesKey = ObjectUtils.isEmpty(consumerSpec.getTopicNames()) ? "no-topics-set"
+					: consumerSpec.getTopicNames().get(0);
 			this.topicNameToConsumerSpec.put(topicNamesKey, consumerSpec);
 		}
 

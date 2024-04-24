@@ -42,7 +42,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  */
 class PulsarTransactionUtilsTests {
 
-	private PulsarClient pulsarClient = mock(PulsarClient.class);
+	private final PulsarClient pulsarClient = mock(PulsarClient.class);
 
 	@Nested
 	class InTransaction {

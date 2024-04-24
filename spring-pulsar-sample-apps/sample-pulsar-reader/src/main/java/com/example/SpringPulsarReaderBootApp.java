@@ -43,7 +43,7 @@ public class SpringPulsarReaderBootApp {
 
 		@Bean
 		ApplicationRunner sendPrimitiveMessagesToPulsarTopic(PulsarTemplate<String> template) {
-			return (args) -> {
+			return args -> {
 				for (int i = 0; i < 10; i++) {
 					var msg = "ProduceAndReadWithPrimitiveMessageType:" + i;
 					template.send(TOPIC, msg);
@@ -66,7 +66,7 @@ public class SpringPulsarReaderBootApp {
 
 		@Bean
 		ApplicationRunner sendComplexMessagesToPulsarTopic(PulsarTemplate<Foo> template) {
-			return (args) -> {
+			return args -> {
 				for (int i = 0; i < 10; i++) {
 					var msg = new Foo("ProduceAndReadWithComplexMessageType", i);
 					template.send(TOPIC, msg);

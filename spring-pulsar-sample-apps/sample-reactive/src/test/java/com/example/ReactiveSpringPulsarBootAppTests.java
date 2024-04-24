@@ -48,23 +48,23 @@ class ReactiveSpringPulsarBootAppTests implements PulsarTestContainerSupport {
 
 	@Test
 	void reactiveTemplateWithSimpleReactiveListener(CapturedOutput output) {
-		verifyProduceConsume(output,10, (i) -> "ReactiveTemplateWithSimpleReactiveListener:" + i);
+		verifyProduceConsume(output,10, i -> "ReactiveTemplateWithSimpleReactiveListener:" + i);
 	}
 
 	@Test
 	void reactiveTemplateWithStreamingReactiveListener(CapturedOutput output) {
-		verifyProduceConsume(output,10, (i) -> new Foo("Foo-" + i, "Bar-" + i));
+		verifyProduceConsume(output,10, i -> new Foo("Foo-" + i, "Bar-" + i));
 	}
 
 	@Test
 	void reactiveTemplateWithImperativeListener(CapturedOutput output) {
-		verifyProduceConsume(output,10, (i) -> "ReactiveTemplateWithImperativeListener:" + i);
+		verifyProduceConsume(output,10, i -> "ReactiveTemplateWithImperativeListener:" + i);
 	}
 
 	private void verifyProduceConsume(CapturedOutput output, int numExpectedMessages,
 			Function<Integer, Object> expectedMessageFactory) {
 		List < String > expectedOutput = new ArrayList<>();
-		IntStream.range(0, numExpectedMessages).forEachOrdered((i) -> {
+		IntStream.range(0, numExpectedMessages).forEachOrdered(i -> {
 			var msg = expectedMessageFactory.apply(i);
 			expectedOutput.add("++++++PRODUCE %s------".formatted(msg));
 			expectedOutput.add("++++++CONSUME %s------".formatted(msg));

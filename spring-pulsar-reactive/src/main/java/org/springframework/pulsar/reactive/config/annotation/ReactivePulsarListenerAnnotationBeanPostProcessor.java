@@ -99,7 +99,7 @@ public class ReactivePulsarListenerAnnotationBeanPostProcessor<V> extends Abstra
 
 	private ReactivePulsarListenerEndpointRegistry<?> endpointRegistry;
 
-	private String defaultContainerFactoryBeanName = DEFAULT_REACTIVE_PULSAR_LISTENER_CONTAINER_FACTORY_BEAN_NAME;
+	private final String defaultContainerFactoryBeanName = DEFAULT_REACTIVE_PULSAR_LISTENER_CONTAINER_FACTORY_BEAN_NAME;
 
 	private final PulsarListenerEndpointRegistrar registrar = new PulsarListenerEndpointRegistrar(
 			ReactivePulsarListenerContainerFactory.class);
@@ -148,7 +148,7 @@ public class ReactivePulsarListenerAnnotationBeanPostProcessor<V> extends Abstra
 			Map<Method, Set<ReactivePulsarListener>> annotatedMethods = MethodIntrospector.selectMethods(targetClass,
 					(MethodIntrospector.MetadataLookup<Set<ReactivePulsarListener>>) method -> {
 						Set<ReactivePulsarListener> listenerMethods = findListenerAnnotations(method);
-						return (!listenerMethods.isEmpty() ? listenerMethods : null);
+						return listenerMethods.isEmpty() ? null : listenerMethods;
 					});
 			if (annotatedMethods.isEmpty()) {
 				this.nonAnnotatedClasses.add(bean.getClass());
@@ -287,7 +287,7 @@ public class ReactivePulsarListenerAnnotationBeanPostProcessor<V> extends Abstra
 				return;
 			}
 			this.beanFactory.getBeanProvider(ReactivePulsarListenerMessageConsumerBuilderCustomizer.class)
-				.ifUnique((customizer) -> {
+				.ifUnique(customizer -> {
 					this.logger.info(() -> String
 						.format("Setting the only registered ReactivePulsarListenerMessageConsumerBuilderCustomizer "
 								+ "on the only registered @ReactivePulsarListener (%s)", endpoint.getId()));

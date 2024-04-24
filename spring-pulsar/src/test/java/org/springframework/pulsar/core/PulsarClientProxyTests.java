@@ -41,7 +41,7 @@ class PulsarClientProxyTests implements PulsarTestContainerSupport {
 	@Test
 	void constructWithCustomizer() throws Exception {
 		var restartableClient = new PulsarClientProxy(
-				(clientBuilder) -> clientBuilder.serviceUrl("pulsar://localhost:5150"));
+				clientBuilder -> clientBuilder.serviceUrl("pulsar://localhost:5150"));
 		restartableClient.afterPropertiesSet();
 		assertThat(restartableClient.getInstance()).hasFieldOrPropertyWithValue("conf.serviceUrl",
 				"pulsar://localhost:5150");
@@ -56,7 +56,7 @@ class PulsarClientProxyTests implements PulsarTestContainerSupport {
 	@Test
 	void restartLifecycle() throws Exception {
 		var serviceUrl = PulsarTestContainerSupport.getPulsarBrokerUrl();
-		var restartableClient = new PulsarClientProxy((builder) -> builder.serviceUrl(serviceUrl));
+		var restartableClient = new PulsarClientProxy(builder -> builder.serviceUrl(serviceUrl));
 		restartableClient.afterPropertiesSet();
 		var delegateClient = restartableClient.getInstance();
 		assertThat(delegateClient).isNotNull();
@@ -95,7 +95,7 @@ class PulsarClientProxyTests implements PulsarTestContainerSupport {
 		@BeforeEach
 		void createClient() throws Exception {
 			var serviceUrl = PulsarTestContainerSupport.getPulsarBrokerUrl();
-			restartableClient = new PulsarClientProxy((builder) -> builder.serviceUrl(serviceUrl));
+			restartableClient = new PulsarClientProxy(builder -> builder.serviceUrl(serviceUrl));
 			restartableClient.afterPropertiesSet();
 			delegateClient = mock(PulsarClient.class);
 			ReflectionTestUtils.setField(restartableClient, "instance", delegateClient);

@@ -122,7 +122,7 @@ class PulsarListenerTests extends PulsarListenerTestsBase {
 		void concurrencyOnPulsarListenerWithFailoverSubscription(@Autowired PulsarListenerEndpointRegistry registry)
 				throws Exception {
 			var pulsarProducerFactory = new DefaultPulsarProducerFactory<String>(pulsarClient, null,
-					List.of((pb) -> pb.enableBatching(false)));
+					List.of(pb -> pb.enableBatching(false)));
 			var customTemplate = new PulsarTemplate<>(pulsarProducerFactory);
 			var bar = (ConcurrentPulsarMessageListenerContainer<?>) registry.getListenerContainer("bar");
 
@@ -139,7 +139,7 @@ class PulsarListenerTests extends PulsarListenerTestsBase {
 		void nonDefaultConcurrencySettingNotAllowedOnExclusiveSubscriptions(
 				@Autowired PulsarListenerEndpointRegistry registry) throws Exception {
 			var pulsarProducerFactory = new DefaultPulsarProducerFactory<String>(pulsarClient, null,
-					List.of((pb) -> pb.enableBatching(false)));
+					List.of(pb -> pb.enableBatching(false)));
 			var customTemplate = new PulsarTemplate<>(pulsarProducerFactory);
 			var bar = (ConcurrentPulsarMessageListenerContainer<?>) registry.getListenerContainer("bar");
 
@@ -637,9 +637,8 @@ class PulsarListenerTests extends PulsarListenerTestsBase {
 					PulsarConsumerFactory<Object> pulsarConsumerFactory, SchemaResolver schemaResolver) {
 				PulsarContainerProperties containerProps = new PulsarContainerProperties();
 				containerProps.setSchemaResolver(schemaResolver);
-				ConcurrentPulsarListenerContainerFactory<?> pulsarListenerContainerFactory = new ConcurrentPulsarListenerContainerFactory<>(
+				return new ConcurrentPulsarListenerContainerFactory<>(
 						pulsarConsumerFactory, containerProps);
-				return pulsarListenerContainerFactory;
 			}
 
 			@PulsarListener(id = "jsonListener", topics = "json-custom-mappings-topic",
@@ -715,9 +714,8 @@ class PulsarListenerTests extends PulsarListenerTestsBase {
 					PulsarConsumerFactory<Object> pulsarConsumerFactory, TopicResolver topicResolver) {
 				PulsarContainerProperties containerProps = new PulsarContainerProperties();
 				containerProps.setTopicResolver(topicResolver);
-				ConcurrentPulsarListenerContainerFactory<?> pulsarListenerContainerFactory = new ConcurrentPulsarListenerContainerFactory<>(
+				return new ConcurrentPulsarListenerContainerFactory<>(
 						pulsarConsumerFactory, containerProps);
-				return pulsarListenerContainerFactory;
 			}
 
 			@PulsarListener(id = "userListener", schemaType = SchemaType.JSON, subscriptionName = "sub1",
@@ -1084,7 +1082,7 @@ class PulsarListenerTests extends PulsarListenerTestsBase {
 
 				@Bean
 				ConsumerBuilderCustomizer<String> consumerFactoryDefaultSubTypeCustomizer() {
-					return (b) -> b.subscriptionType(SubscriptionType.Shared);
+					return b -> b.subscriptionType(SubscriptionType.Shared);
 				}
 
 				@PulsarListener(topics = "typeSetConsumerFactory-topic",

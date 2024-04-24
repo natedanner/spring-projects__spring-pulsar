@@ -71,7 +71,7 @@ public class DefaultReactivePulsarReaderFactory<T> implements ReactivePulsarRead
 
 		// Apply the user specified customizers
 		if (!CollectionUtils.isEmpty(customizers)) {
-			customizers.forEach((c) -> c.customize(readerBuilder));
+			customizers.forEach(c -> c.customize(readerBuilder));
 		}
 
 		return readerBuilder.build();

@@ -76,7 +76,7 @@ interface RestartableComponentSupport extends SmartLifecycle, DisposableBean {
 		/** Component has been stopped. */
 		STOPPED,
 		/** Component has been destroyed. */
-		DESTROYED;
+		DESTROYED
 
 	}
 

@@ -146,7 +146,7 @@ public class MethodReactivePulsarListenerEndpoint<V> extends AbstractReactivePul
 		ResolvableType messageType = resolvableType(messageParameter);
 		schemaResolver.resolveSchema(schemaType, messageType)
 			.ifResolvedOrElse(pulsarContainerProperties::setSchema,
-					(ex) -> this.logger
+					ex -> this.logger
 						.warn(() -> "Failed to resolve schema for type %s - will default to BYTES (due to: %s)"
 							.formatted(schemaType, ex.getMessage())));
 
@@ -167,7 +167,7 @@ public class MethodReactivePulsarListenerEndpoint<V> extends AbstractReactivePul
 				|| !ObjectUtils.isEmpty(pulsarContainerProperties.getTopics());
 		if (!hasTopicInfo) {
 			topicResolver.resolveTopic(null, messageType.getRawClass(), () -> null)
-				.ifResolved((topic) -> pulsarContainerProperties.setTopics(Collections.singleton(topic)));
+				.ifResolved(topic -> pulsarContainerProperties.setTopics(Collections.singleton(topic)));
 		}
 
 		ReactiveMessageConsumerBuilderCustomizer<V> customizer1 = b -> b.deadLetterPolicy(this.deadLetterPolicy);

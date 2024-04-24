@@ -95,7 +95,7 @@ public class PulsarReaderAnnotationBeanPostProcessor<V> extends AbstractPulsarAn
 
 	private PulsarReaderEndpointRegistry endpointRegistry;
 
-	private String defaultContainerFactoryBeanName = DEFAULT_PULSAR_READER_CONTAINER_FACTORY_BEAN_NAME;
+	private final String defaultContainerFactoryBeanName = DEFAULT_PULSAR_READER_CONTAINER_FACTORY_BEAN_NAME;
 
 	private final PulsarReaderEndpointRegistrar registrar = new PulsarReaderEndpointRegistrar(
 			PulsarReaderContainerFactory.class);
@@ -137,7 +137,7 @@ public class PulsarReaderAnnotationBeanPostProcessor<V> extends AbstractPulsarAn
 			Map<Method, Set<PulsarReader>> annotatedMethods = MethodIntrospector.selectMethods(targetClass,
 					(MethodIntrospector.MetadataLookup<Set<PulsarReader>>) method -> {
 						Set<PulsarReader> readerMethods = findReaderAnnotations(method);
-						return (!readerMethods.isEmpty() ? readerMethods : null);
+						return readerMethods.isEmpty() ? null : readerMethods;
 					});
 			if (annotatedMethods.isEmpty()) {
 				this.nonAnnotatedClasses.add(bean.getClass());
@@ -217,10 +217,10 @@ public class PulsarReaderAnnotationBeanPostProcessor<V> extends AbstractPulsarAn
 		endpoint.setSchemaType(pulsarReader.schemaType());
 		String startMessageIdString = pulsarReader.startMessageId();
 		MessageId startMessageId = null;
-		if (startMessageIdString.equalsIgnoreCase("earliest")) {
+		if ("earliest".equalsIgnoreCase(startMessageIdString)) {
 			startMessageId = MessageId.earliest;
 		}
-		else if (startMessageIdString.equalsIgnoreCase("latest")) {
+		else if ("latest".equalsIgnoreCase(startMessageIdString)) {
 			startMessageId = MessageId.latest;
 		}
 		endpoint.setStartMessageId(startMessageId);
@@ -242,7 +242,7 @@ public class PulsarReaderAnnotationBeanPostProcessor<V> extends AbstractPulsarAn
 			if (endpoint.getReaderBuilderCustomizer() != null) {
 				return;
 			}
-			this.beanFactory.getBeanProvider(PulsarReaderReaderBuilderCustomizer.class).ifUnique((customizer) -> {
+			this.beanFactory.getBeanProvider(PulsarReaderReaderBuilderCustomizer.class).ifUnique(customizer -> {
 				this.logger.info(() -> String.format("Setting the only registered PulsarReaderReaderBuilderCustomizer "
 						+ "on the only registered @PulsarReader (%s)", endpoint.getId()));
 				endpoint.setReaderBuilderCustomizer(customizer::customize);

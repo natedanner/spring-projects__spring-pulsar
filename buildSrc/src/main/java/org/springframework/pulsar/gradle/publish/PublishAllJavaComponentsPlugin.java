@@ -12,15 +12,13 @@ public class PublishAllJavaComponentsPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
-		project.getPlugins().withType(MavenPublishPlugin.class).all((mavenPublish) -> {
+		project.getPlugins().withType(MavenPublishPlugin.class).all(mavenPublish -> {
 			PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
 			publishing.getPublications().create("mavenJava", MavenPublication.class, mavenPublication -> {
-				project.getPlugins().withType(JavaPlugin.class, (plugin) -> {
-					mavenPublication.from(project.getComponents().getByName("java"));
-				});
-				project.getPlugins().withType(JavaPlatformPlugin.class, (plugin) -> {
-					mavenPublication.from(project.getComponents().getByName("javaPlatform"));
-				});
+				project.getPlugins().withType(JavaPlugin.class, plugin ->
+					mavenPublication.from(project.getComponents().getByName("java")));
+				project.getPlugins().withType(JavaPlatformPlugin.class, plugin ->
+					mavenPublication.from(project.getComponents().getByName("javaPlatform")));
 			});
 		});
 	}

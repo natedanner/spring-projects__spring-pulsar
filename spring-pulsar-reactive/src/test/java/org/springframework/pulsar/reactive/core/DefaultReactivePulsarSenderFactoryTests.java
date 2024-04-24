@@ -76,7 +76,7 @@ class DefaultReactivePulsarSenderFactoryTests {
 
 	private void assertThatSenderHasTopic(ReactiveMessageSender<String> sender, String expectedTopic) {
 		assertThatSenderSpecSatisfies(sender,
-				(senderSpec) -> assertThat(senderSpec).extracting(ReactiveMessageSenderSpec::getTopicName)
+				senderSpec -> assertThat(senderSpec).extracting(ReactiveMessageSenderSpec::getTopicName)
 					.isEqualTo(expectedTopic));
 	}
 
@@ -142,24 +142,24 @@ class DefaultReactivePulsarSenderFactoryTests {
 
 		@Test
 		void singleCustomizer() {
-			var sender = newSenderFactory().createSender(schema, "topic1", (b) -> b.producerName("fooProducer"));
+			var sender = newSenderFactory().createSender(schema, "topic1", b -> b.producerName("fooProducer"));
 			assertThatSenderSpecSatisfies(sender,
-					(senderSpec) -> assertThat(senderSpec.getProducerName()).isEqualTo("fooProducer"));
+					senderSpec -> assertThat(senderSpec.getProducerName()).isEqualTo("fooProducer"));
 		}
 
 		@Test
 		void singleCustomizerViaListApi() {
 			var sender = newSenderFactory().createSender(schema, "topic1",
-					Collections.singletonList((b) -> b.producerName("fooProducer")));
+					Collections.singletonList(b -> b.producerName("fooProducer")));
 			assertThatSenderSpecSatisfies(sender,
-					(senderSpec) -> assertThat(senderSpec.getProducerName()).isEqualTo("fooProducer"));
+					senderSpec -> assertThat(senderSpec.getProducerName()).isEqualTo("fooProducer"));
 		}
 
 		@Test
 		void multipleCustomizers() {
 			var sender = newSenderFactory().createSender(schema, "topic1",
-					Arrays.asList((b) -> b.producerName("fooProducer"), (b) -> b.compressionType(CompressionType.LZ4)));
-			assertThatSenderSpecSatisfies(sender, (senderSpec) -> {
+					Arrays.asList(b -> b.producerName("fooProducer"), b -> b.compressionType(CompressionType.LZ4)));
+			assertThatSenderSpecSatisfies(sender, senderSpec -> {
 				assertThat(senderSpec.getProducerName()).isEqualTo("fooProducer");
 				assertThat(senderSpec.getCompressionType()).isEqualTo(CompressionType.LZ4);
 			});
@@ -167,7 +167,7 @@ class DefaultReactivePulsarSenderFactoryTests {
 
 		@Test
 		void customizerThatSetsTopicHasNoEffect() {
-			var sender = newSenderFactory().createSender(schema, "topic1", (b) -> b.topic("topic-5150"));
+			var sender = newSenderFactory().createSender(schema, "topic1", b -> b.topic("topic-5150"));
 			assertThatSenderHasTopic(sender, "topic1");
 		}
 

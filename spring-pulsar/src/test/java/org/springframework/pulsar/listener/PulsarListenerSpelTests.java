@@ -172,9 +172,9 @@ class PulsarListenerSpelTests extends PulsarListenerTestsBase {
 
 		@Test
 		void containerFactoryDerivedFromAttribute(@Autowired PulsarListenerContainerFactory containerFactory) {
-			verify(containerFactory).createListenerContainer(argThat(endpoint -> endpoint.getId().equals("foo")));
-			verify(containerFactory).createListenerContainer(argThat(endpoint -> endpoint.getId().equals("bar")));
-			verify(containerFactory).createListenerContainer(argThat(endpoint -> endpoint.getId().equals("zaa")));
+			verify(containerFactory).createListenerContainer(argThat(endpoint -> "foo".equals(endpoint.getId())));
+			verify(containerFactory).createListenerContainer(argThat(endpoint -> "bar".equals(endpoint.getId())));
+			verify(containerFactory).createListenerContainer(argThat(endpoint -> "zaa".equals(endpoint.getId())));
 		}
 
 		@EnablePulsar
@@ -345,7 +345,7 @@ class PulsarListenerSpelTests extends PulsarListenerTestsBase {
 		@Configuration(proxyBeanMethods = false)
 		static class NackRedeliveryBackoffAttributeConfig {
 
-			static RedeliveryBackoff CUSTOM_BACKOFF = (i) -> i;
+			static RedeliveryBackoff CUSTOM_BACKOFF = i -> i;
 
 			@Bean
 			RedeliveryBackoff customNackRedeliveryBackoff() {
@@ -388,7 +388,7 @@ class PulsarListenerSpelTests extends PulsarListenerTestsBase {
 		@Configuration(proxyBeanMethods = false)
 		static class AckRedeliveryBackoffAttributeConfig {
 
-			static RedeliveryBackoff CUSTOM_BACKOFF = (i) -> i;
+			static RedeliveryBackoff CUSTOM_BACKOFF = i -> i;
 
 			@Bean
 			RedeliveryBackoff customAckRedeliveryBackoff() {
@@ -514,7 +514,7 @@ class PulsarListenerSpelTests extends PulsarListenerTestsBase {
 
 			@Bean
 			PulsarListenerConsumerBuilderCustomizer<?> customConsumerCustomizer() {
-				return (builder) -> {
+				return builder -> {
 					var conf = ReflectionTestUtils.getField(builder, "conf");
 					assertThat(conf).isNotNull();
 					CUSTOMIZED_CONTAINERS_SUBSCRIPTION_NAMES

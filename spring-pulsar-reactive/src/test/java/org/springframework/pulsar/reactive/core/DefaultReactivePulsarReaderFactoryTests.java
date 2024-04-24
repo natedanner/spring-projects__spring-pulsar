@@ -43,7 +43,7 @@ class DefaultReactivePulsarReaderFactoryTests {
 	void createReader() {
 		DefaultReactivePulsarReaderFactory<String> readerFactory = new DefaultReactivePulsarReaderFactory<>(
 				AdaptedReactivePulsarClientFactory.create((PulsarClient) null),
-				List.of((builder) -> builder.readerName("test-reader")));
+				List.of(builder -> builder.readerName("test-reader")));
 
 		ReactiveMessageReader<String> reader = readerFactory.createReader(schema);
 
@@ -56,7 +56,7 @@ class DefaultReactivePulsarReaderFactoryTests {
 	void createReaderWithCustomizer() {
 		DefaultReactivePulsarReaderFactory<String> readerFactory = new DefaultReactivePulsarReaderFactory<>(
 				AdaptedReactivePulsarClientFactory.create((PulsarClient) null),
-				List.of((builder) -> builder.readerName("test-reader")));
+				List.of(builder -> builder.readerName("test-reader")));
 
 		ReactiveMessageReader<String> reader = readerFactory.createReader(schema,
 				Collections.singletonList(builder -> builder.readerName("new-test-reader")));

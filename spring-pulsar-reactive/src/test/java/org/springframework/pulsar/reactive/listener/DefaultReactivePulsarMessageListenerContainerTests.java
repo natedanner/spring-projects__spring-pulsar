@@ -69,7 +69,7 @@ class DefaultReactivePulsarMessageListenerContainerTests implements PulsarTestCo
 			var containerProperties = new ReactivePulsarContainerProperties<String>();
 			containerProperties.setSchema(Schema.STRING);
 			containerProperties.setMessageHandler(
-					(ReactivePulsarOneByOneMessageHandler<String>) (msg) -> Mono.fromRunnable(latch::countDown));
+					(ReactivePulsarOneByOneMessageHandler<String>) msg -> Mono.fromRunnable(latch::countDown));
 			container = new DefaultReactivePulsarMessageListenerContainer<>(consumerFactory, containerProperties);
 			container.start();
 			createPulsarTemplate(topic, reactivePulsarClient).send("hello john doe").subscribe();
@@ -93,7 +93,7 @@ class DefaultReactivePulsarMessageListenerContainerTests implements PulsarTestCo
 			var containerProperties = new ReactivePulsarContainerProperties<String>();
 			containerProperties.setSchema(Schema.STRING);
 			containerProperties.setMessageHandler(
-					(ReactivePulsarStreamingHandler<String>) (msg) -> msg.doOnNext((m) -> latch.countDown())
+					(ReactivePulsarStreamingHandler<String>) msg -> msg.doOnNext(m -> latch.countDown())
 						.map(MessageResult::acknowledge));
 			container = new DefaultReactivePulsarMessageListenerContainer<>(consumerFactory, containerProperties);
 			container.start();
@@ -121,7 +121,7 @@ class DefaultReactivePulsarMessageListenerContainerTests implements PulsarTestCo
 			var containerProperties = new ReactivePulsarContainerProperties<String>();
 			containerProperties.setSchema(Schema.STRING);
 			containerProperties.setMessageHandler(
-					(ReactivePulsarOneByOneMessageHandler<String>) (msg) -> Mono.fromRunnable(latch::countDown));
+					(ReactivePulsarOneByOneMessageHandler<String>) msg -> Mono.fromRunnable(latch::countDown));
 			containerProperties.setConcurrency(5);
 			containerProperties.setUseKeyOrderedProcessing(true);
 			containerProperties.setHandlingTimeout(Duration.ofMillis(7));
@@ -148,7 +148,7 @@ class DefaultReactivePulsarMessageListenerContainerTests implements PulsarTestCo
 		try {
 			var reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
 			var topic = topicNameForTest("4");
-			ReactiveMessageConsumerBuilderCustomizer<String> defaultConfig = (builder) -> {
+			ReactiveMessageConsumerBuilderCustomizer<String> defaultConfig = builder -> {
 				builder.topic(topic);
 				builder.subscriptionName(topic + "-sub");
 			};
@@ -156,7 +156,7 @@ class DefaultReactivePulsarMessageListenerContainerTests implements PulsarTestCo
 					List.of(defaultConfig));
 			var containerProperties = new ReactivePulsarContainerProperties<String>();
 			containerProperties.setSchema(Schema.STRING);
-			containerProperties.setMessageHandler((ReactivePulsarOneByOneMessageHandler<String>) (msg) -> Mono.empty());
+			containerProperties.setMessageHandler((ReactivePulsarOneByOneMessageHandler<String>) msg -> Mono.empty());
 			container = new DefaultReactivePulsarMessageListenerContainer<>(consumerFactory, containerProperties);
 			container.start();
 
@@ -165,9 +165,7 @@ class DefaultReactivePulsarMessageListenerContainerTests implements PulsarTestCo
 				.create(consumerFactory.createConsumer(Schema.STRING,
 						List.of(builder -> builder.subscriptionType(SubscriptionType.Shared)))
 					.consumeNothing())
-				.expectErrorMatches((ex) -> {
-					return true;
-				})
+				.expectErrorMatches(ex -> true)
 				.verify(Duration.ofSeconds(10));
 		}
 		finally {
@@ -183,7 +181,7 @@ class DefaultReactivePulsarMessageListenerContainerTests implements PulsarTestCo
 		try {
 			var reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
 			var topic = topicNameForTest("5");
-			ReactiveMessageConsumerBuilderCustomizer<String> defaultConfig = (builder) -> {
+			ReactiveMessageConsumerBuilderCustomizer<String> defaultConfig = builder -> {
 				builder.topic(topic);
 				builder.subscriptionName(topic + "-sub");
 			};
@@ -192,7 +190,7 @@ class DefaultReactivePulsarMessageListenerContainerTests implements PulsarTestCo
 			var containerProperties = new ReactivePulsarContainerProperties<String>();
 			containerProperties.setSchema(Schema.STRING);
 			containerProperties.setSubscriptionType(SubscriptionType.Shared);
-			containerProperties.setMessageHandler((ReactivePulsarOneByOneMessageHandler<String>) (msg) -> Mono.empty());
+			containerProperties.setMessageHandler((ReactivePulsarOneByOneMessageHandler<String>) msg -> Mono.empty());
 			container = new DefaultReactivePulsarMessageListenerContainer<>(consumerFactory, containerProperties);
 			container.start();
 
@@ -218,7 +216,7 @@ class DefaultReactivePulsarMessageListenerContainerTests implements PulsarTestCo
 			var reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
 			var topic = "drpmlct-6-foo";
 			var subscription = topic + "-sub";
-			ReactiveMessageConsumerBuilderCustomizer<String> customizer = (builder) -> {
+			ReactiveMessageConsumerBuilderCustomizer<String> customizer = builder -> {
 				builder.topic(topic);
 				builder.subscriptionName(topic + "-sub");
 			};
@@ -233,7 +231,7 @@ class DefaultReactivePulsarMessageListenerContainerTests implements PulsarTestCo
 			containerProperties.setTopicsPattern("persistent://public/default/drpmlct-6-.*");
 			containerProperties.setSubscriptionName(subscription);
 			containerProperties.setMessageHandler(
-					(ReactivePulsarOneByOneMessageHandler<String>) (msg) -> Mono.fromRunnable(latch::countDown));
+					(ReactivePulsarOneByOneMessageHandler<String>) msg -> Mono.fromRunnable(latch::countDown));
 			container = new DefaultReactivePulsarMessageListenerContainer<>(consumerFactory, containerProperties);
 			container.start();
 
@@ -254,7 +252,7 @@ class DefaultReactivePulsarMessageListenerContainerTests implements PulsarTestCo
 			var reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
 			var topic = "drpmlct-7";
 			var deadLetterTopic = topic + "-dlt";
-			ReactiveMessageConsumerBuilderCustomizer<String> defaultConfig = (builder) -> {
+			ReactiveMessageConsumerBuilderCustomizer<String> defaultConfig = builder -> {
 				builder.topic(topic);
 				builder.subscriptionName(topic + "-sub");
 				builder.negativeAckRedeliveryDelay(Duration.ZERO);
@@ -262,7 +260,7 @@ class DefaultReactivePulsarMessageListenerContainerTests implements PulsarTestCo
 			var consumerFactory = new DefaultReactivePulsarConsumerFactory<>(reactivePulsarClient,
 					List.of(defaultConfig));
 			var dlqConsumer = consumerFactory.createConsumer(Schema.STRING,
-					List.of((builder) -> builder.topics(List.of(deadLetterTopic))));
+					List.of(builder -> builder.topics(List.of(deadLetterTopic))));
 			// Ensure subscriptions are created
 			consumerFactory.createConsumer(Schema.STRING).consumeNothing().block(Duration.ofSeconds(5));
 			dlqConsumer.consumeNothing().block(Duration.ofSeconds(5));
@@ -270,8 +268,8 @@ class DefaultReactivePulsarMessageListenerContainerTests implements PulsarTestCo
 			var containerProperties = new ReactivePulsarContainerProperties<String>();
 			containerProperties.setSchema(Schema.STRING);
 			containerProperties.setMessageHandler(
-					(ReactivePulsarStreamingHandler<String>) (msg) -> msg.doOnNext((m) -> latch.countDown())
-						.map((m) -> m.getValue().endsWith("4") ? MessageResult.negativeAcknowledge(m)
+					(ReactivePulsarStreamingHandler<String>) msg -> msg.doOnNext(m -> latch.countDown())
+						.map(m -> m.getValue().endsWith("4") ? MessageResult.negativeAcknowledge(m)
 								: MessageResult.acknowledge(m)));
 			containerProperties.setSubscriptionType(SubscriptionType.Shared);
 
@@ -285,7 +283,7 @@ class DefaultReactivePulsarMessageListenerContainerTests implements PulsarTestCo
 
 			var producerFactory = DefaultReactivePulsarSenderFactory.<String>builderFor(reactivePulsarClient)
 				.withDefaultTopic(topic)
-				.withDefaultConfigCustomizer((builder) -> builder.batchingEnabled(false))
+				.withDefaultConfigCustomizer(builder -> builder.batchingEnabled(false))
 				.build();
 			var pulsarTemplate = new ReactivePulsarTemplate<>(producerFactory);
 			Flux.range(0, 5).map(i -> MessageSpec.of("hello john doe" + i)).as(pulsarTemplate::send).subscribe();
@@ -312,7 +310,7 @@ class DefaultReactivePulsarMessageListenerContainerTests implements PulsarTestCo
 
 	private DefaultReactivePulsarConsumerFactory<String> createAndPrepareConsumerFactory(String topic,
 			ReactivePulsarClient reactivePulsarClient) {
-		ReactiveMessageConsumerBuilderCustomizer<String> defaultConfig = (builder) -> {
+		ReactiveMessageConsumerBuilderCustomizer<String> defaultConfig = builder -> {
 			builder.topic(topic);
 			builder.subscriptionName(topic + "-sub");
 		};

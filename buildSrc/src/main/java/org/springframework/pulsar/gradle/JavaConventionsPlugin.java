@@ -103,7 +103,7 @@ public class JavaConventionsPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
-		project.getPlugins().withType(JavaBasePlugin.class, (java) -> {
+		project.getPlugins().withType(JavaBasePlugin.class, java -> {
 			configureSpringJavaFormat(project);
 			configureJavadocConventions(project);
 			configureTestConventions(project);
@@ -114,7 +114,7 @@ public class JavaConventionsPlugin implements Plugin<Project> {
 
 	private void configureSpringJavaFormat(Project project) {
 		project.getPlugins().apply(SpringJavaFormatPlugin.class);
-		project.getTasks().withType(Format.class, (Format) -> Format.setEncoding("UTF-8"));
+		project.getTasks().withType(Format.class, format -> format.setEncoding("UTF-8"));
 		project.getPlugins().apply(CheckstylePlugin.class);
 		CheckstyleExtension checkstyle = project.getExtensions().getByType(CheckstyleExtension.class);
 		checkstyle.setToolVersion("10.12.4");
@@ -126,7 +126,7 @@ public class JavaConventionsPlugin implements Plugin<Project> {
 	}
 
 	private void configureJavadocConventions(Project project) {
-		project.getTasks().withType(Javadoc.class, (javadoc) -> {
+		project.getTasks().withType(Javadoc.class, javadoc -> {
 			CoreJavadocOptions options = (CoreJavadocOptions) javadoc.getOptions();
 			options.source("17");
 			options.encoding("UTF-8");
@@ -136,7 +136,7 @@ public class JavaConventionsPlugin implements Plugin<Project> {
 
 	private void configureTestConventions(Project project) {
 		project.getPlugins().apply(TestFailuresPlugin.class);
-		project.getTasks().withType(Test.class, (test) -> {
+		project.getTasks().withType(Test.class, test -> {
 			test.useJUnitPlatform();
 			test.setMaxHeapSize("1024M");
 			test.testLogging(testLoggingContainer -> {
@@ -155,7 +155,7 @@ public class JavaConventionsPlugin implements Plugin<Project> {
 			project.getTasks().withType(Checkstyle.class, test::mustRunAfter);
 			project.getTasks().withType(CheckFormat.class, test::mustRunAfter);
 		});
-		project.getPlugins().withType(JavaPlugin.class, (javaPlugin) -> project.getDependencies()
+		project.getPlugins().withType(JavaPlugin.class, javaPlugin -> project.getDependencies()
 				.add(JavaPlugin.TEST_RUNTIME_ONLY_CONFIGURATION_NAME, "org.junit.platform:junit-platform-launcher"));
 	}
 
@@ -170,9 +170,9 @@ public class JavaConventionsPlugin implements Plugin<Project> {
 				.collect(Collectors.toSet());
 		Set<String> javadocJarTaskNames = sourceSets.stream().map(SourceSet::getJavadocJarTaskName)
 				.collect(Collectors.toSet());
-		project.getTasks().withType(Jar.class, (jar) -> project.afterEvaluate((evaluated) -> {
-			jar.metaInf((metaInf) -> metaInf.from(extractLegalResources));
-			jar.manifest((manifest) -> {
+		project.getTasks().withType(Jar.class, jar -> project.afterEvaluate(evaluated -> {
+			jar.metaInf(metaInf -> metaInf.from(extractLegalResources));
+			jar.manifest(manifest -> {
 				Map<String, Object> attributes = new TreeMap<>();
 				attributes.put("Automatic-Module-Name", project.getName().replace("-", "."));
 				attributes.put("Build-Jdk-Spec", SOURCE_AND_TARGET_COMPATIBILITY);
@@ -198,18 +198,18 @@ public class JavaConventionsPlugin implements Plugin<Project> {
 
 	private void configureDependencyManagement(Project project) {
 		ConfigurationContainer configurations = project.getConfigurations();
-		Configuration dependencyManagement = configurations.create("dependencyManagement", (configuration) -> {
+		Configuration dependencyManagement = configurations.create("dependencyManagement", configuration -> {
 			configuration.setVisible(false);
 			configuration.setCanBeConsumed(false);
 			configuration.setCanBeResolved(false);
 		});
 		configurations
-				.matching((c) -> c.getName().endsWith("Classpath") || c.getName().toLowerCase().endsWith("annotationprocessor"))
-				.all((c) -> c.extendsFrom(dependencyManagement));
+				.matching(c -> c.getName().endsWith("Classpath") || c.getName().toLowerCase().endsWith("annotationprocessor"))
+				.all(c -> c.extendsFrom(dependencyManagement));
 		Dependency pulsarDependencies = project.getDependencies().enforcedPlatform(project.getDependencies()
 				.project(Collections.singletonMap("path", ":spring-pulsar-dependencies")));
 		dependencyManagement.getDependencies().add(pulsarDependencies);
-		project.getPlugins().withType(OptionalDependenciesPlugin.class, (optionalDependencies) -> configurations
+		project.getPlugins().withType(OptionalDependenciesPlugin.class, optionalDependencies -> configurations
 				.getByName(OptionalDependenciesPlugin.OPTIONAL_CONFIGURATION_NAME).extendsFrom(dependencyManagement));
 	}
 

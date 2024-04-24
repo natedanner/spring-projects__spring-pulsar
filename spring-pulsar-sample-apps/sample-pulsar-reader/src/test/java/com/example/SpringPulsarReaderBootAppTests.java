@@ -48,19 +48,19 @@ class SpringPulsarReaderBootAppTests implements PulsarTestContainerSupport {
 
 	@Test
 	void produceConsumeWithPrimitiveMessageType(CapturedOutput output) {
-		verifyProduceConsume(output,10, (i) -> "ProduceAndReadWithPrimitiveMessageType:" + i);
+		verifyProduceConsume(output,10, i -> "ProduceAndReadWithPrimitiveMessageType:" + i);
 	}
 
 	@Test
 	void produceConsumeWithComplexMessageType(CapturedOutput output) {
 		verifyProduceConsume(output,10,
-				(i) -> new Foo("ProduceAndReadWithComplexMessageType", i));
+				i -> new Foo("ProduceAndReadWithComplexMessageType", i));
 	}
 
 	private void verifyProduceConsume(CapturedOutput output, int numExpectedMessages,
 			Function<Integer, Object> expectedMessageFactory) {
 		List < String > expectedOutput = new ArrayList<>();
-		IntStream.range(0, numExpectedMessages).forEachOrdered((i) -> {
+		IntStream.range(0, numExpectedMessages).forEachOrdered(i -> {
 			var msg = expectedMessageFactory.apply(i);
 			expectedOutput.add("++++++PRODUCE %s------".formatted(msg));
 			expectedOutput.add("++++++READ %s------".formatted(msg));

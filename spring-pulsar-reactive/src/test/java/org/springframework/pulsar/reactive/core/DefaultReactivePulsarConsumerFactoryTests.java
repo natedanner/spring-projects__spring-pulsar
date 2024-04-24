@@ -78,7 +78,7 @@ class DefaultReactivePulsarConsumerFactoryTests {
 		void createConsumerFactory() {
 			consumerFactory = new DefaultReactivePulsarConsumerFactory<>(
 					AdaptedReactivePulsarClientFactory.create((PulsarClient) null),
-					List.of((builder) -> builder.consumerName("test-consumer")));
+					List.of(builder -> builder.consumerName("test-consumer")));
 		}
 
 		@Test

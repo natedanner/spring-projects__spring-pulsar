@@ -63,7 +63,7 @@ public final class PulsarConsumerTestUtil<T> implements TopicSpec<T>, SchemaSpec
 
 	private List<String> topics;
 
-	private boolean untilMethodAlreadyCalled = false;
+	private boolean untilMethodAlreadyCalled;
 
 	/**
 	 * Begin a builder which will consume messages from the

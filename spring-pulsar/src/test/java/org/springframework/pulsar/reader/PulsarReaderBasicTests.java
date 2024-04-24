@@ -55,16 +55,16 @@ class PulsarReaderBasicTests extends PulsarReaderTestsBase {
 			Function<String, T> payloadFactory) throws PulsarClientException {
 		pulsarTemplate.newMessage(payloadFactory.apply("foo"))
 			.withTopic(topic)
-			.withMessageCustomizer((mb) -> mb.key("key:foo"))
+			.withMessageCustomizer(mb -> mb.key("key:foo"))
 			.send();
 		pulsarTemplate.newMessage(null)
 			.withTopic(topic)
 			.withSchema(schema)
-			.withMessageCustomizer((mb) -> mb.key("key:null"))
+			.withMessageCustomizer(mb -> mb.key("key:null"))
 			.send();
 		pulsarTemplate.newMessage(payloadFactory.apply("bar"))
 			.withTopic(topic)
-			.withMessageCustomizer((mb) -> mb.key("key:bar"))
+			.withMessageCustomizer(mb -> mb.key("key:bar"))
 			.send();
 	}
 
@@ -125,7 +125,7 @@ class PulsarReaderBasicTests extends PulsarReaderTestsBase {
 
 			@PulsarReader(topics = TOPIC, schemaType = SchemaType.STRING, startMessageId = "earliest")
 			public void listenWithoutHeaders(Message<Object> msg) {
-				var payload = (msg.getPayload() != PulsarNull.INSTANCE) ? msg.getPayload().toString() : null;
+				var payload = msg.getPayload() != PulsarNull.INSTANCE ? msg.getPayload().toString() : null;
 				assertThat(msg.getHeaders()).isNotEmpty();
 				receivedMessagesWithoutHeaders.add(new ReceivedMessage<>(payload, null));
 				latchWithoutHeaders.countDown();

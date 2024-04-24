@@ -54,10 +54,10 @@ public class ReactiveSpringPulsarBootApp {
 
 		@Bean
 		ApplicationRunner sendPrimitiveMessagesToPulsarTopic(ReactivePulsarTemplate<String> template) {
-			return (args) -> Flux.range(0, 10)
-					.map((i) -> MessageSpec.of("ReactiveTemplateWithSimpleReactiveListener:" + i))
+			return args -> Flux.range(0, 10)
+					.map(i -> MessageSpec.of("ReactiveTemplateWithSimpleReactiveListener:" + i))
 					.as(messages -> template.send(TOPIC, messages))
-					.doOnNext((msr) -> LOG.info("++++++PRODUCE {}------", msr.getMessageSpec().getValue()))
+					.doOnNext(msr -> LOG.info("++++++PRODUCE {}------", msr.getMessageSpec().getValue()))
 					.subscribe();
 		}
 
@@ -77,10 +77,10 @@ public class ReactiveSpringPulsarBootApp {
 		@Bean
 		ApplicationRunner sendComplexMessagesToPulsarTopic(ReactivePulsarTemplate<Foo> template) {
 			var schema = Schema.JSON(Foo.class);
-			return (args) -> Flux.range(0, 10)
-					.map((i) -> MessageSpec.of(new Foo("Foo-" + i, "Bar-" + i)))
+			return args -> Flux.range(0, 10)
+					.map(i -> MessageSpec.of(new Foo("Foo-" + i, "Bar-" + i)))
 					.as(messages -> template.send(TOPIC, messages, schema))
-					.doOnNext((msr) -> LOG.info("++++++PRODUCE {}------", msr.getMessageSpec().getValue()))
+					.doOnNext(msr -> LOG.info("++++++PRODUCE {}------", msr.getMessageSpec().getValue()))
 					.subscribe();
 		}
 
@@ -88,7 +88,7 @@ public class ReactiveSpringPulsarBootApp {
 				consumerCustomizer = "subscriptionInitialPositionEarliest")
 		public Flux<MessageResult<Void>> listenStreaming(Flux<Message<Foo>> messages) {
 			return messages
-					.doOnNext((msg) -> LOG.info("++++++CONSUME {}------", msg.getValue()))
+					.doOnNext(msg -> LOG.info("++++++CONSUME {}------", msg.getValue()))
 					.map(MessageResult::acknowledge);
 		}
 
@@ -111,10 +111,10 @@ public class ReactiveSpringPulsarBootApp {
 
 		@Bean
 		ApplicationRunner sendMessagesToPulsarTopic(ReactivePulsarTemplate<String> template) {
-			return (args) -> Flux.range(0, 10)
-					.map((i) -> MessageSpec.of("ReactiveTemplateWithImperativeListener:" + i))
+			return args -> Flux.range(0, 10)
+					.map(i -> MessageSpec.of("ReactiveTemplateWithImperativeListener:" + i))
 					.as(messages -> template.send(TOPIC, messages))
-					.doOnNext((msr) -> LOG.info("++++++PRODUCE {}------", msr.getMessageSpec().getValue()))
+					.doOnNext(msr -> LOG.info("++++++PRODUCE {}------", msr.getMessageSpec().getValue()))
 					.subscribe();
 		}
 

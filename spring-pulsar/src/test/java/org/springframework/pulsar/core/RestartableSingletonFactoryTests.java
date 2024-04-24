@@ -142,9 +142,8 @@ public class RestartableSingletonFactoryTests {
 	}
 
 	void verifyFactoryState(RestartableSingletonFactory<?> factory, State expectedState) {
-		assertThat(factory).extracting("state").satisfies((state) -> {
-			assertThat(state.toString()).contains(expectedState.name());
-		});
+		assertThat(factory).extracting("state").satisfies(state ->
+			assertThat(state.toString()).contains(expectedState.name()));
 	}
 
 	static class FooFactory extends RestartableSingletonFactory<Foo> {

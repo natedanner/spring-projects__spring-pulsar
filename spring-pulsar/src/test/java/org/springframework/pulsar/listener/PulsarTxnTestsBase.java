@@ -77,7 +77,7 @@ class PulsarTxnTestsBase {
 
 		@Bean
 		PulsarClient pulsarClient() {
-			return new DefaultPulsarClientFactory((clientBuilder) -> {
+			return new DefaultPulsarClientFactory(clientBuilder -> {
 				clientBuilder.serviceUrl(PULSAR_CONTAINER.getPulsarBrokerUrl());
 				clientBuilder.enableTransaction(true);
 			}).createClient();
@@ -110,7 +110,7 @@ class PulsarTxnTestsBase {
 		PulsarListenerContainerFactory pulsarListenerContainerFactory(
 				PulsarConsumerFactory<Object> pulsarConsumerFactory, PulsarContainerProperties pulsarContainerProps,
 				ObjectProvider<PulsarContainerPropertiesCustomizer> containerPropsCustomizer) {
-			containerPropsCustomizer.ifAvailable((c) -> c.customize(pulsarContainerProps));
+			containerPropsCustomizer.ifAvailable(c -> c.customize(pulsarContainerProps));
 			return new ConcurrentPulsarListenerContainerFactory<>(pulsarConsumerFactory, pulsarContainerProps);
 		}
 

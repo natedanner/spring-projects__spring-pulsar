@@ -268,7 +268,7 @@ public class PulsarTemplate<T>
 			TypedMessageBuilder<T> messageBuilder;
 			try {
 				var txn = getTransaction();
-				messageBuilder = (txn != null) ? producer.newMessage(txn) : producer.newMessage();
+				messageBuilder = txn != null ? producer.newMessage(txn) : producer.newMessage();
 				messageBuilder = messageBuilder.value(message);
 				if (typedMessageBuilderCustomizer != null) {
 					typedMessageBuilderCustomizer.customize(messageBuilder);

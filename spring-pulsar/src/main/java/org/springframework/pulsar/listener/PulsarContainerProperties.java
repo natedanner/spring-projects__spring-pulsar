@@ -345,7 +345,7 @@ public class PulsarContainerProperties {
 			if (timeout == null) {
 				return this.transactionDefinition;
 			}
-			var txnDef = (this.transactionDefinition != null)
+			var txnDef = this.transactionDefinition != null
 					? new DefaultTransactionDefinition(this.transactionDefinition) : new DefaultTransactionDefinition();
 			txnDef.setTimeout(Math.toIntExact(timeout.toSeconds()));
 			return txnDef;

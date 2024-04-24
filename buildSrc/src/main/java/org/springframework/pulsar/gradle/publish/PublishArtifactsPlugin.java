@@ -12,7 +12,7 @@ public class PublishArtifactsPlugin implements Plugin<Project> {
 		project.getTasks().register("publishArtifacts", publishArtifacts -> {
 			publishArtifacts.setGroup("Publishing");
 			publishArtifacts.setDescription("Publish the artifacts to either Artifactory or Maven Central based on the version");
-			if (ProjectUtils.isRelease(project) && !project.getName().equals("spring-pulsar-docs")) {
+			if (ProjectUtils.isRelease(project) && !"spring-pulsar-docs".equals(project.getName())) {
 				publishArtifacts.dependsOn("publishToOssrh");
 			}
 			else {

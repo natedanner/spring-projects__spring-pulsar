@@ -323,14 +323,14 @@ public class DefaultPulsarMessageListenerContainer<T> extends AbstractPulsarMess
 					"Transactions are enabled but txn manager is not set");
 			var txnRecordListenerWithBatchAckMode = !this.isBatchListener
 					&& this.containerProperties.getAckMode() == AckMode.BATCH;
-			Assert.state(!(txnRecordListenerWithBatchAckMode),
+			Assert.state(!txnRecordListenerWithBatchAckMode,
 					"Transactional record listeners can not use batch ack mode");
 			var txnBatchListenerWithRecordAckMode = this.isBatchListener
 					&& this.containerProperties.getAckMode() == AckMode.RECORD;
-			Assert.state(!(txnBatchListenerWithRecordAckMode),
+			Assert.state(!txnBatchListenerWithRecordAckMode,
 					"Transactional batch listeners do not support AckMode.RECORD");
 			var txnBatchListenerWithErrorHandler = this.isBatchListener && this.pulsarConsumerErrorHandler != null;
-			Assert.state(!(txnBatchListenerWithErrorHandler),
+			Assert.state(!txnBatchListenerWithErrorHandler,
 					"Transactional batch listeners do not support custom error handlers");
 		}
 
@@ -822,7 +822,7 @@ public class DefaultPulsarMessageListenerContainer<T> extends AbstractPulsarMess
 
 	}
 
-	private static abstract class AbstractAcknowledgement implements Acknowledgement {
+	private abstract static class AbstractAcknowledgement implements Acknowledgement {
 
 		protected final Consumer<?> consumer;
 

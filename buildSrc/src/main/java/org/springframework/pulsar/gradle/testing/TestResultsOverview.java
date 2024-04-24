@@ -62,11 +62,11 @@ public abstract class TestResultsOverview
 			}
 			System.err.println();
 			System.err.println("Found test failures in " + this.testFailures.size() + " test task"
-					+ ((this.testFailures.size() == 1) ? ":" : "s:"));
+					+ (this.testFailures.size() == 1 ? ":" : "s:"));
 			this.testFailures.forEach((task, failures) -> {
 				System.err.println();
 				System.err.println(task.getPath());
-				failures.forEach((failure) -> System.err
+				failures.forEach(failure -> System.err
 						.println("    " + failure.descriptor.getClassName() + " > " + failure.descriptor.getName()));
 			});
 		}

@@ -79,7 +79,7 @@ class DefaultExpressionResolverTest {
 		Resolved<String> resolved = expressionResolver.resolveToString("#{someBean.someProperty}");
 
 		assertThat(resolved.exception())
-			.hasValueSatisfying((ex) -> assertThat(ex).isInstanceOf(IllegalArgumentException.class)
+			.hasValueSatisfying(ex -> assertThat(ex).isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("The expression '#{someBean.someProperty}' must resolve to a string but was: "));
 
 	}

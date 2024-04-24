@@ -74,20 +74,20 @@ public class AsciidoctorConventionsPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
-		project.getPlugins().withType(AsciidoctorJPlugin.class, (asciidoctorPlugin) -> {
+		project.getPlugins().withType(AsciidoctorJPlugin.class, asciidoctorPlugin -> {
 			configureDocumentationDependenciesRepository(project);
 			makeAllWarningsFatal(project);
 			upgradeAsciidoctorJVersion(project);
 			createAsciidoctorExtensionsConfiguration(project);
 			project.getTasks().withType(AbstractAsciidoctorTask.class,
-					(asciidoctorTask) -> configureAsciidoctorTask(project, asciidoctorTask));
+					asciidoctorTask -> configureAsciidoctorTask(project, asciidoctorTask));
 		});
 	}
 
 	private void configureDocumentationDependenciesRepository(Project project) {
-		project.getRepositories().maven((mavenRepo) -> {
+		project.getRepositories().maven(mavenRepo -> {
 			mavenRepo.setUrl(URI.create("https://repo.maven.apache.org/maven2"));
-			mavenRepo.mavenContent((mavenContent) -> {
+			mavenRepo.mavenContent(mavenContent -> {
 				mavenContent.includeGroup("io.spring.asciidoctor");
 				mavenContent.includeGroup("io.spring.asciidoctor.backends");
 				mavenContent.includeGroup("io.spring.docresources");
@@ -104,8 +104,8 @@ public class AsciidoctorConventionsPlugin implements Plugin<Project> {
 	}
 
 	private void createAsciidoctorExtensionsConfiguration(Project project) {
-		project.getConfigurations().create(EXTENSIONS_CONFIGURATION_NAME, (configuration) -> {
-			project.getConfigurations().matching((candidate) -> "dependencyManagement".equals(candidate.getName()))
+		project.getConfigurations().create(EXTENSIONS_CONFIGURATION_NAME, configuration -> {
+			project.getConfigurations().matching(candidate -> "dependencyManagement".equals(candidate.getName()))
 					.all(configuration::extendsFrom);
 			configuration.getDependencies().add(project.getDependencies()
 					.create("io.spring.asciidoctor.backends:spring-asciidoctor-backends:0.0.4"));
@@ -122,8 +122,8 @@ public class AsciidoctorConventionsPlugin implements Plugin<Project> {
 		createSyncDocumentationSourceTask(project, asciidoctorTask);
 		if (asciidoctorTask instanceof AsciidoctorTask task) {
 			boolean pdf = task.getName().toLowerCase().contains("pdf");
-			String backend = (!pdf) ? "spring-html" : "spring-pdf";
-			task.outputOptions((outputOptions) -> outputOptions.backends(backend));
+			String backend = !pdf ? "spring-html" : "spring-pdf";
+			task.outputOptions(outputOptions -> outputOptions.backends(backend));
 		}
 	}
 
@@ -138,7 +138,7 @@ public class AsciidoctorConventionsPlugin implements Plugin<Project> {
 
 	private String determineGitHubTag(Project project) {
 		String version = "v" + project.getVersion();
-		return (version.endsWith("-SNAPSHOT")) ? "main" : version;
+		return version.endsWith("-SNAPSHOT") ? "main" : version;
 	}
 
 	private void configureOptions(AbstractAsciidoctorTask asciidoctorTask) {

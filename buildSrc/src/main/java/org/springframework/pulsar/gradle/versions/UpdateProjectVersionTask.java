@@ -41,19 +41,19 @@ public abstract class UpdateProjectVersionTask extends DefaultTask {
 
 	protected void updateVersionInGradleProperties(String versionPropertyName, String newVersion) {
 		this.updatePropertyInFile(Project.GRADLE_PROPERTIES, versionPropertyName,
-				(p) -> p.property(versionPropertyName).toString(),
-				(currentValue) -> newVersion,
-				(currentValue) -> "%s=%s".formatted(versionPropertyName, currentValue),
-				(newValue) -> "%s=%s".formatted(versionPropertyName, newValue));
+				p -> p.property(versionPropertyName).toString(),
+				currentValue -> newVersion,
+				currentValue -> "%s=%s".formatted(versionPropertyName, currentValue),
+				newValue -> "%s=%s".formatted(versionPropertyName, newValue));
 	}
 
 	protected void updateVersionInTomlVersions(String versionPropertyName,
 			Function<String, String> newPropertyValueGivenCurrentValue) {
 		this.updatePropertyInFile("gradle/libs.versions.toml", versionPropertyName,
-				(p) -> currentVersionInCatalog(p, versionPropertyName),
+				p -> currentVersionInCatalog(p, versionPropertyName),
 				newPropertyValueGivenCurrentValue,
-				(currentValue) -> "%s = \"%s\"".formatted(versionPropertyName, currentValue),
-				(newValue) -> "%s = \"%s\"".formatted(versionPropertyName, newValue));
+				currentValue -> "%s = \"%s\"".formatted(versionPropertyName, currentValue),
+				newValue -> "%s = \"%s\"".formatted(versionPropertyName, newValue));
 	}
 
 	protected void updateVersionInTomlVersions(String versionPropertyName, String sourcePropertyName,
@@ -61,10 +61,10 @@ public abstract class UpdateProjectVersionTask extends DefaultTask {
 		var currentVersionPropertyValue = currentVersionInCatalog(getProject(), versionPropertyName);
 		var currentSourcePropertyValue = currentVersionInCatalog(getProject(), sourcePropertyName);
 		this.updatePropertyInFile("gradle/libs.versions.toml", versionPropertyName,
-				(__) -> currentSourcePropertyValue,
+				__ -> currentSourcePropertyValue,
 				newPropertyValueGivenCurrentValue,
-				(__) -> "%s = \"%s\"".formatted(versionPropertyName, currentVersionPropertyValue),
-				(newValue) -> "%s = \"%s\"".formatted(versionPropertyName, newValue));
+				__ -> "%s = \"%s\"".formatted(versionPropertyName, currentVersionPropertyValue),
+				newValue -> "%s = \"%s\"".formatted(versionPropertyName, newValue));
 	}
 
 	protected void updatePropertyInFile(String propertyFile, String propertyName,
@@ -80,7 +80,7 @@ public abstract class UpdateProjectVersionTask extends DefaultTask {
 		String newValue = newPropertyValueGivenCurrentValue.apply(currentValue);
 		System.out.printf("Updating the %s property in %s from %s to %s%n", propertyName,
 				propertyFile, currentValue, newValue);
-		FileUtils.replaceFileText(file, (propertiesText) -> propertiesText.replace(
+		FileUtils.replaceFileText(file, propertiesText -> propertiesText.replace(
 				expectedCurrentPropertyEntryInFile.apply(currentValue),
 				newPropertyEntryInFile.apply(newValue)));
 	}

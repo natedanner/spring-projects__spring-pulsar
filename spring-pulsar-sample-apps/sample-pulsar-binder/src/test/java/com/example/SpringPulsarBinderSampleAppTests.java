@@ -48,7 +48,7 @@ class SpringPulsarBinderSampleAppTests implements PulsarTestContainerSupport {
 	@Test
 	void produceConsumeWithPrimitiveMessageType(CapturedOutput output) {
 		var expectedOutput = new ArrayList<String>();
-		IntStream.range(0, 10).forEachOrdered((i) -> {
+		IntStream.range(0, 10).forEachOrdered(i -> {
 			var foo = new Foo("fooSupplier:" + i);
 			var bar = new Bar(foo);
 			expectedOutput.add("++++++SOURCE %s------".formatted(foo));

@@ -126,7 +126,7 @@ class ReactivePulsarListenerCustomizerTests implements PulsarTestContainerSuppor
 
 		@Test
 		void customizerIsAutoAssociated(@Autowired ReactivePulsarListenerEndpointRegistry registry) {
-			assertContainer(registry, "singleListenerSingleCustomizer-id").satisfies((container) -> {
+			assertContainer(registry, "singleListenerSingleCustomizer-id").satisfies(container -> {
 				var builder = mock(ReactiveMessageConsumerBuilder.class);
 				container.getConsumerCustomizer().customize(builder);
 				verify(MY_CUSTOMIZER).customize(builder);
@@ -159,12 +159,12 @@ class ReactivePulsarListenerCustomizerTests implements PulsarTestContainerSuppor
 
 		@Test
 		void customizerIsNotAutoAssociated(@Autowired ReactivePulsarListenerEndpointRegistry registry) {
-			assertContainer(registry, "multiListenerSingleCustomizer1-id").satisfies((container) -> {
+			assertContainer(registry, "multiListenerSingleCustomizer1-id").satisfies(container -> {
 				var builder = mock(ReactiveMessageConsumerBuilder.class);
 				container.getConsumerCustomizer().customize(builder);
 				verify(MY_CUSTOMIZER, never()).customize(builder);
 			});
-			assertContainer(registry, "multiListenerSingleCustomizer2-id").satisfies((container) -> {
+			assertContainer(registry, "multiListenerSingleCustomizer2-id").satisfies(container -> {
 				var builder = mock(ReactiveMessageConsumerBuilder.class);
 				container.getConsumerCustomizer().customize(builder);
 				verify(MY_CUSTOMIZER, never()).customize(builder);
@@ -205,7 +205,7 @@ class ReactivePulsarListenerCustomizerTests implements PulsarTestContainerSuppor
 
 		@Test
 		void customizerIsNotAutoAssociated(@Autowired ReactivePulsarListenerEndpointRegistry registry) {
-			assertContainer(registry, "singleListenerMultiCustomizers-id").satisfies((container) -> {
+			assertContainer(registry, "singleListenerMultiCustomizers-id").satisfies(container -> {
 				var builder = mock(ReactiveMessageConsumerBuilder.class);
 				container.getConsumerCustomizer().customize(builder);
 				verify(MY_CUSTOMIZER, never()).customize(builder);

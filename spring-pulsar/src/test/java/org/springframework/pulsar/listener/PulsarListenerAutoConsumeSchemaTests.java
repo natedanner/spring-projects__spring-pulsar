@@ -152,7 +152,7 @@ class PulsarListenerAutoConsumeSchemaTests extends PulsarListenerTestsBase {
 			GenericJsonRecord record = (GenericJsonRecord) genericMessage.getValue();
 			assertThat(record.getSchemaType()).isEqualTo(SchemaType.JSON);
 			assertThat(record).extracting("schemaInfo")
-				.satisfies((obj) -> assertThat(obj.toString()).contains("\"name\": \"UserRecord\""));
+				.satisfies(obj -> assertThat(obj.toString()).contains("\"name\": \"UserRecord\""));
 			jsonMessages.add(record.getFields()
 				.stream()
 				.map(Field::getName)
@@ -167,7 +167,7 @@ class PulsarListenerAutoConsumeSchemaTests extends PulsarListenerTestsBase {
 			GenericAvroRecord record = (GenericAvroRecord) genericMessage.getValue();
 			assertThat(record.getSchemaType()).isEqualTo(SchemaType.AVRO);
 			assertThat(record).extracting("schema")
-				.satisfies((obj) -> assertThat(obj.toString()).contains("\"name\":\"UserPojo\""));
+				.satisfies(obj -> assertThat(obj.toString()).contains("\"name\":\"UserPojo\""));
 			avroMessages.add(record.getFields()
 				.stream()
 				.map(Field::getName)

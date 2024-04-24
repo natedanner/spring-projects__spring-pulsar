@@ -71,7 +71,7 @@ public class DefaultReactivePulsarConsumerFactory<T> implements ReactivePulsarCo
 
 		// Apply the user specified customizers
 		if (!CollectionUtils.isEmpty(customizers)) {
-			customizers.forEach((c) -> c.customize(consumerBuilder));
+			customizers.forEach(c -> c.customize(consumerBuilder));
 		}
 
 		return consumerBuilder.build();

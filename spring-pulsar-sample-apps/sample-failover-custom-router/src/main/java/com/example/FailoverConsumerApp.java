@@ -50,7 +50,7 @@ public class FailoverConsumerApp {
 
 	@Bean
 	ApplicationRunner runner(PulsarTemplate<String> template) {
-		return (args) -> {
+		return args -> {
 			for (int i = 0; i < 10; i++) {
 				sendMessage(0, template, new PartitionZeroRouter());
 				sendMessage(1, template, new PartitionOneRouter());

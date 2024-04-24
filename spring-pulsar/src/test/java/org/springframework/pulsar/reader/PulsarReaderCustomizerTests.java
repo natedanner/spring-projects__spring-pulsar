@@ -79,12 +79,12 @@ class PulsarReaderCustomizerTests extends PulsarReaderTestsBase {
 
 			@Bean
 			ReaderBuilderCustomizer<String> defaultCustomizer() {
-				return (rb) -> rb.topic("defaultCustomizerTopic");
+				return rb -> rb.topic("defaultCustomizerTopic");
 			}
 
 			@Bean
 			PulsarReaderReaderBuilderCustomizer<String> myCustomizer() {
-				return (rb) -> rb.topic("myCustomizerTopic");
+				return rb -> rb.topic("myCustomizerTopic");
 			}
 
 		}
@@ -100,7 +100,7 @@ class PulsarReaderCustomizerTests extends PulsarReaderTestsBase {
 
 		@Test
 		void customizerIsAutoAssociated(@Autowired PulsarReaderEndpointRegistry registry) {
-			assertContainer(registry, "singleListenerSingleCustomizer-id").satisfies((container) -> {
+			assertContainer(registry, "singleListenerSingleCustomizer-id").satisfies(container -> {
 				var builder = mock(ReaderBuilder.class);
 				container.getReaderBuilderCustomizer().customize(builder);
 				verify(MY_CUSTOMIZER).customize(builder);

@@ -66,7 +66,7 @@ import org.springframework.pulsar.transaction.PulsarTransactionUtils;
 @Testcontainers(disabledWithoutDocker = true)
 class DefaultPulsarMessageListenerContainerTxnTests {
 
-	private static PulsarContainer PULSAR_CONTAINER = new PulsarContainer(PulsarTestContainerSupport.getPulsarImage())
+	private static PulsarContainer pulsarContainer = new PulsarContainer(PulsarTestContainerSupport.getPulsarImage())
 		.withTransactions();
 
 	private PulsarClient client;
@@ -77,14 +77,14 @@ class DefaultPulsarMessageListenerContainerTxnTests {
 
 	@BeforeAll
 	static void startContainer() {
-		PULSAR_CONTAINER.start();
+		pulsarContainer.start();
 	}
 
 	@BeforeEach
 	void setup() throws PulsarClientException {
 		client = PulsarClient.builder()
 			.enableTransaction(true)
-			.serviceUrl(PULSAR_CONTAINER.getPulsarBrokerUrl())
+			.serviceUrl(pulsarContainer.getPulsarBrokerUrl())
 			.build();
 		var producerFactory = new DefaultPulsarProducerFactory<String>(client);
 		transactionalPulsarTemplate = new PulsarTemplate<>(producerFactory);
@@ -181,7 +181,7 @@ class DefaultPulsarMessageListenerContainerTxnTests {
 		var containerProps = newContainerProps();
 		var listenerLatch = new CountDownLatch(1);
 		containerProps.setMessageListener((PulsarRecordMessageListener<?>) (consumer, msg) -> {
-			transactionalPulsarTemplate.executeInTransaction((t) -> t.send(topicOut, msg.getValue() + "-out"));
+			transactionalPulsarTemplate.executeInTransaction(t -> t.send(topicOut, msg.getValue() + "-out"));
 			listenerLatch.countDown();
 		});
 		startContainerAndSendInputsThenWaitForLatch(topicIn, containerProps, listenerLatch, false, "msg1");
@@ -195,7 +195,7 @@ class DefaultPulsarMessageListenerContainerTxnTests {
 		var containerProps = newContainerProps();
 		var listenerLatch = new CountDownLatch(1);
 		containerProps.setMessageListener((PulsarRecordMessageListener<?>) (consumer, msg) -> {
-			transactionalPulsarTemplate.executeInTransaction((t) -> t.send(topicOut, msg.getValue() + "-out"));
+			transactionalPulsarTemplate.executeInTransaction(t -> t.send(topicOut, msg.getValue() + "-out"));
 			PulsarTransactionUtils.getResourceHolder(client).setRollbackOnly();
 			listenerLatch.countDown();
 		});
@@ -215,7 +215,7 @@ class DefaultPulsarMessageListenerContainerTxnTests {
 			listenerLatch.countDown();
 		});
 		startContainerAndSendInputsThenWaitForLatch(topicIn, containerProps, listenerLatch, false, inputMsgs);
-		var outputMsgs = inputMsgs.stream().map((m) -> m.concat("-out")).toList();
+		var outputMsgs = inputMsgs.stream().map(m -> m.concat("-out")).toList();
 		assertMessagesAvailableInOutputTopic(topicOut, outputMsgs);
 	}
 
@@ -247,7 +247,7 @@ class DefaultPulsarMessageListenerContainerTxnTests {
 		});
 		var consumerFactory = new DefaultPulsarConsumerFactory<String>(client, List.of());
 		var container = new DefaultPulsarMessageListenerContainer<>(consumerFactory, containerProps);
-		assertThatIllegalStateException().isThrownBy(() -> container.start())
+		assertThatIllegalStateException().isThrownBy(container::start)
 			.withMessage("Transactional record listeners can not use batch ack mode");
 	}
 
@@ -271,15 +271,14 @@ class DefaultPulsarMessageListenerContainerTxnTests {
 		containerProps.setSubscriptionType(subscriptionType);
 		var inputMsgs = List.of("msg1", "msg2", "msg3");
 		var listenerLatch = new CountDownLatch(inputMsgs.size());
-		containerProps.setMessageListener((PulsarBatchMessageListener<?>) (consumer, msgs) -> {
-			msgs.forEach((msg) -> {
+		containerProps.setMessageListener((PulsarBatchMessageListener<?>) (consumer, msgs) ->
+			msgs.forEach(msg -> {
 				transactionalPulsarTemplate.send(topicOut, msg.getValue() + "-out");
 				listenerLatch.countDown();
-			});
-		});
+			}));
 		var spyConsumer = startContainerAndSendInputsThenWaitForLatch(topicIn, containerProps, listenerLatch, true,
 				inputMsgs);
-		var outputMsgs = inputMsgs.stream().map((m) -> m.concat("-out")).toList();
+		var outputMsgs = inputMsgs.stream().map(m -> m.concat("-out")).toList();
 		assertMessagesAvailableInOutputTopic(topicOut, outputMsgs);
 		if (subscriptionType == SubscriptionType.Shared) {
 			verify(spyConsumer).acknowledgeAsync(any(Messages.class), any(Transaction.class));
@@ -299,8 +298,8 @@ class DefaultPulsarMessageListenerContainerTxnTests {
 		var inputMsgs = List.of("msg1", "msg2", "msg3");
 		var listenerLatch = new CountDownLatch(1);
 		containerProps.setMessageListener((PulsarBatchMessageListener<?>) (consumer, msgs) -> {
-			msgs.forEach((msg) -> transactionalPulsarTemplate.send(topicOut, msg.getValue() + "-out"));
-			CompletableFuture.runAsync(() -> listenerLatch.countDown());
+			msgs.forEach(msg -> transactionalPulsarTemplate.send(topicOut, msg.getValue() + "-out"));
+			CompletableFuture.runAsync(listenerLatch::countDown);
 			throw new RuntimeException("NOPE");
 		});
 		startContainerAndSendInputsThenWaitForLatch(topicIn, containerProps, listenerLatch, true, inputMsgs);
@@ -318,7 +317,7 @@ class DefaultPulsarMessageListenerContainerTxnTests {
 		var inputMsgs = List.of("msg1", "msg2", "msg3");
 		var listenerLatch = new CountDownLatch(1);
 		containerProps.setMessageListener((PulsarBatchMessageListener<?>) (consumer, msgs) -> {
-			msgs.forEach((msg) -> transactionalPulsarTemplate.send(topicOut, msg.getValue() + "-out"));
+			msgs.forEach(msg -> transactionalPulsarTemplate.send(topicOut, msg.getValue() + "-out"));
 			listenerLatch.countDown();
 			PulsarTransactionUtils.getResourceHolder(client).setRollbackOnly();
 		});
@@ -336,9 +335,9 @@ class DefaultPulsarMessageListenerContainerTxnTests {
 		var inputMsgs = List.of("msg1", "msg2", "msg3");
 		var listenerLatch = new CountDownLatch(1);
 		containerProps.setMessageListener((PulsarBatchMessageListener<?>) (consumer, msgs) -> {
-			msgs.forEach((msg) -> {
+			msgs.forEach(msg -> {
 				if (msg.getValue().equals("msg1")) {
-					transactionalPulsarTemplate.executeInTransaction((t) -> t.send(topicOut, msg.getValue() + "-out"));
+					transactionalPulsarTemplate.executeInTransaction(t -> t.send(topicOut, msg.getValue() + "-out"));
 				}
 				else {
 					transactionalPulsarTemplate.send(topicOut, msg.getValue() + "-out");
@@ -362,12 +361,12 @@ class DefaultPulsarMessageListenerContainerTxnTests {
 		var inputMsgs = List.of("msg1", "msg2", "msg3");
 		var listenerLatch = new CountDownLatch(inputMsgs.size());
 		containerProps.setMessageListener((PulsarBatchAcknowledgingMessageListener<?>) (consumer, msgs, ack) -> {
-			msgs.forEach((msg) -> transactionalPulsarTemplate.send(topicOut, msg.getValue() + "-out"));
+			msgs.forEach(msg -> transactionalPulsarTemplate.send(topicOut, msg.getValue() + "-out"));
 			ack.acknowledge(msgs.stream().map(Message::getMessageId).toList());
-			msgs.forEach((__) -> listenerLatch.countDown());
+			msgs.forEach(__ -> listenerLatch.countDown());
 		});
 		startContainerAndSendInputsThenWaitForLatch(topicIn, containerProps, listenerLatch, true, inputMsgs);
-		var outputMsgs = inputMsgs.stream().map((m) -> m.concat("-out")).toList();
+		var outputMsgs = inputMsgs.stream().map(m -> m.concat("-out")).toList();
 		assertMessagesAvailableInOutputTopic(topicOut, outputMsgs);
 	}
 
@@ -381,7 +380,7 @@ class DefaultPulsarMessageListenerContainerTxnTests {
 		var inputMsgs = List.of("msg1", "msg2", "msg3");
 		var listenerLatch = new CountDownLatch(1);
 		containerProps.setMessageListener((PulsarBatchAcknowledgingMessageListener<?>) (consumer, msgs, ack) -> {
-			msgs.forEach((msg) -> transactionalPulsarTemplate.send(topicOut, msg.getValue() + "-out"));
+			msgs.forEach(msg -> transactionalPulsarTemplate.send(topicOut, msg.getValue() + "-out"));
 			ack.acknowledge(msgs.stream().map(Message::getMessageId).toList());
 			listenerLatch.countDown();
 			PulsarTransactionUtils.getResourceHolder(client).setRollbackOnly();
@@ -401,7 +400,7 @@ class DefaultPulsarMessageListenerContainerTxnTests {
 		var consumerFactory = new DefaultPulsarConsumerFactory<String>(client, List.of());
 		var container = new DefaultPulsarMessageListenerContainer<>(consumerFactory, containerProps);
 		container.setPulsarConsumerErrorHandler(mock(PulsarConsumerErrorHandler.class));
-		assertThatIllegalStateException().isThrownBy(() -> container.start())
+		assertThatIllegalStateException().isThrownBy(container::start)
 			.withMessage("Transactional batch listeners do not support custom error handlers");
 	}
 
@@ -415,7 +414,7 @@ class DefaultPulsarMessageListenerContainerTxnTests {
 	private Consumer<String> startContainerAndSendInputsThenWaitForLatch(String topicIn,
 			PulsarContainerProperties containerProps, CountDownLatch listenerLatch, boolean sendInBatch,
 			List<String> inputMsgs) throws InterruptedException {
-		var consumerFactory = new SpyPulsarConsumerFactory(client, List.of((consumerBuilder) -> {
+		var consumerFactory = new SpyPulsarConsumerFactory(client, List.of(consumerBuilder -> {
 			consumerBuilder.topic(topicIn);
 			consumerBuilder.subscriptionName("sub-" + topicIn);
 		}));
@@ -423,7 +422,7 @@ class DefaultPulsarMessageListenerContainerTxnTests {
 		try {
 			container.start();
 			var nonTransactionalTemplate = newNonTransactionalTemplate(sendInBatch, inputMsgs.size());
-			inputMsgs.forEach((msg) -> nonTransactionalTemplate.sendAsync(topicIn, msg));
+			inputMsgs.forEach(msg -> nonTransactionalTemplate.sendAsync(topicIn, msg));
 			assertThat(listenerLatch.await(sendInBatch ? 8 : 5, TimeUnit.SECONDS)).isTrue();
 			if (sendInBatch) {
 				// Because the latch may fire before exception is thrown - give it a pause
@@ -439,7 +438,7 @@ class DefaultPulsarMessageListenerContainerTxnTests {
 	private PulsarTemplate<String> newNonTransactionalTemplate(boolean sendInBatch, int numInBatch) {
 		List<ProducerBuilderCustomizer<String>> customizers = List.of();
 		if (sendInBatch) {
-			customizers = List.of((pb) -> pb.enableBatching(true)
+			customizers = List.of(pb -> pb.enableBatching(true)
 				.batchingMaxPublishDelay(2, TimeUnit.SECONDS)
 				.batchingMaxMessages(numInBatch));
 		}

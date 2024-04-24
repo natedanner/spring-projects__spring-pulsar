@@ -46,7 +46,7 @@ public class ImperativeProduceAndConsumeApp {
 
 		@Bean
 		ApplicationRunner sendPrimitiveMessagesToPulsarTopic(PulsarTemplate<String> template) {
-			return (args) -> {
+			return args -> {
 				for (int i = 0; i < 10; i++) {
 					var msg = "ProduceConsumeWithPrimitiveMessageType:" + i;
 					template.send(TOPIC, msg);
@@ -70,7 +70,7 @@ public class ImperativeProduceAndConsumeApp {
 
 		@Bean
 		ApplicationRunner sendComplexMessagesToPulsarTopic(PulsarTemplate<Foo> template) {
-			return (args) -> {
+			return args -> {
 				for (int i = 0; i < 10; i++) {
 					var msg = new Foo("ProduceConsumeWithComplexMessageType", i);
 					template.send(TOPIC, msg);
@@ -99,7 +99,7 @@ public class ImperativeProduceAndConsumeApp {
 
 		@Bean
 		ApplicationRunner sendPartitionedMessagesToPulsarTopic(PulsarTemplate<String> template) {
-			return (args) -> {
+			return args -> {
 				for (int i = 0; i < 10; i++) {
 					var msg = "ProduceConsumeWithPartitions:" + i;
 					template.send(TOPIC, msg);
@@ -123,7 +123,7 @@ public class ImperativeProduceAndConsumeApp {
 
 		@Bean
 		ApplicationRunner sendBatchMessagesToPulsarTopic(PulsarTemplate<Foo> template) {
-			return (args) -> {
+			return args -> {
 				for (int i = 0; i < 100; i++) {
 					var msg = new Foo("ProduceConsumeBatchListener", i);
 					template.send(TOPIC, msg);
@@ -134,7 +134,7 @@ public class ImperativeProduceAndConsumeApp {
 
 		@PulsarListener(topics = TOPIC, subscriptionName = TOPIC+"-sub", batch = true)
 		void consumeBatchMessagesFromPulsarTopic(List<Foo> messages) {
-			messages.forEach((msg) -> LOG.info("++++++CONSUME {}------", msg));
+			messages.forEach(msg -> LOG.info("++++++CONSUME {}------", msg));
 		}
 
 	}
@@ -145,7 +145,7 @@ public class ImperativeProduceAndConsumeApp {
 
 		@Bean
 		ApplicationRunner sendBarWithoutTopicOrSchema(PulsarTemplate<Bar> template) {
-			return (args) -> {
+			return args -> {
 				for (int i = 0; i < 10; i++) {
 					var msg = new Bar("ProduceConsumeDefaultMappings:" + i);
 					// Default topic and schema mappings are in application.yml

@@ -59,16 +59,16 @@ class PulsarListenerTombstoneTests extends PulsarListenerTestsBase {
 			Function<String, T> payloadFactory) throws PulsarClientException {
 		pulsarTemplate.newMessage(payloadFactory.apply("foo"))
 			.withTopic(topic)
-			.withMessageCustomizer((mb) -> mb.key("key:foo"))
+			.withMessageCustomizer(mb -> mb.key("key:foo"))
 			.send();
 		pulsarTemplate.newMessage(null)
 			.withTopic(topic)
 			.withSchema(schema)
-			.withMessageCustomizer((mb) -> mb.key("key:null"))
+			.withMessageCustomizer(mb -> mb.key("key:null"))
 			.send();
 		pulsarTemplate.newMessage(payloadFactory.apply("bar"))
 			.withTopic(topic)
-			.withMessageCustomizer((mb) -> mb.key("key:bar"))
+			.withMessageCustomizer(mb -> mb.key("key:bar"))
 			.send();
 	}
 
@@ -152,7 +152,7 @@ class PulsarListenerTombstoneTests extends PulsarListenerTestsBase {
 			@PulsarListener(topics = TOPIC, subscriptionName = TOPIC + "-sub-headers", schemaType = SchemaType.STRING,
 					properties = { "subscriptionInitialPosition=Earliest" })
 			public void listenWithHeaders(Message<?> msg, @Header(PulsarHeaders.KEY) String key) {
-				var payload = (msg.getPayload() != PulsarNull.INSTANCE) ? msg.getPayload().toString() : null;
+				var payload = msg.getPayload() != PulsarNull.INSTANCE ? msg.getPayload().toString() : null;
 				receivedMessagesWithHeaders.add(new ReceivedMessage<>(payload, key));
 				latchWithHeaders.countDown();
 			}
@@ -160,7 +160,7 @@ class PulsarListenerTombstoneTests extends PulsarListenerTestsBase {
 			@PulsarListener(topics = TOPIC, subscriptionName = TOPIC + "-sub-no-headers",
 					schemaType = SchemaType.STRING, properties = { "subscriptionInitialPosition=Earliest" })
 			public void listenWithoutHeaders(Message<Object> msg) {
-				var payload = (msg.getPayload() != PulsarNull.INSTANCE) ? msg.getPayload().toString() : null;
+				var payload = msg.getPayload() != PulsarNull.INSTANCE ? msg.getPayload().toString() : null;
 				receivedMessagesWithoutHeaders.add(new ReceivedMessage<>(payload, null));
 				latchWithoutHeaders.countDown();
 			}

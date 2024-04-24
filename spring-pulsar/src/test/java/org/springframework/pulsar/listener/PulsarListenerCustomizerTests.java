@@ -81,12 +81,12 @@ class PulsarListenerCustomizerTests extends PulsarListenerTestsBase {
 
 			@Bean
 			ConsumerBuilderCustomizer<String> defaultCustomizer() {
-				return (cb) -> cb.consumerName("fromDefaultCustomizer");
+				return cb -> cb.consumerName("fromDefaultCustomizer");
 			}
 
 			@Bean
 			PulsarListenerConsumerBuilderCustomizer<String> myCustomizer() {
-				return (cb) -> cb.consumerName("fromMyCustomizer");
+				return cb -> cb.consumerName("fromMyCustomizer");
 			}
 
 		}
@@ -102,7 +102,7 @@ class PulsarListenerCustomizerTests extends PulsarListenerTestsBase {
 
 		@Test
 		void customizerIsAutoAssociated(@Autowired PulsarListenerEndpointRegistry registry) {
-			assertContainer(registry, "singleListenerSingleCustomizer-id").satisfies((container) -> {
+			assertContainer(registry, "singleListenerSingleCustomizer-id").satisfies(container -> {
 				var builder = mock(ConsumerBuilder.class);
 				container.getConsumerBuilderCustomizer().customize(builder);
 				verify(MY_CUSTOMIZER).customize(builder);

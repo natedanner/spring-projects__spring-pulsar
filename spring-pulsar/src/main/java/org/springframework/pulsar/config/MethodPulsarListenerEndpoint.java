@@ -153,7 +153,7 @@ public class MethodPulsarListenerEndpoint<V> extends AbstractPulsarListenerEndpo
 		ResolvableType messageType = resolvableType(messageParameter);
 		schemaResolver.resolveSchema(schemaType, messageType)
 			.ifResolvedOrElse(pulsarContainerProperties::setSchema,
-					(ex) -> this.logger
+					ex -> this.logger
 						.warn(() -> "Failed to resolve schema for type %s - will default to BYTES (due to: %s)"
 							.formatted(schemaType, ex.getMessage())));
 
@@ -174,7 +174,7 @@ public class MethodPulsarListenerEndpoint<V> extends AbstractPulsarListenerEndpo
 				|| StringUtils.hasText(pulsarContainerProperties.getTopicsPattern());
 		if (!hasTopicInfo) {
 			topicResolver.resolveTopic(null, messageType.getRawClass(), () -> null)
-				.ifResolved((topic) -> pulsarContainerProperties.setTopics(Set.of(topic)));
+				.ifResolved(topic -> pulsarContainerProperties.setTopics(Set.of(topic)));
 		}
 		validateAndAdjustTransactionSettings(pulsarContainerProperties.transactions());
 		container.setNegativeAckRedeliveryBackoff(this.negativeAckRedeliveryBackoff);

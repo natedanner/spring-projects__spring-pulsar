@@ -66,16 +66,16 @@ class ReactivePulsarListenerTombstoneTests extends ReactivePulsarListenerTestsBa
 			Function<String, T> payloadFactory) throws PulsarClientException {
 		pulsarTemplate.newMessage(payloadFactory.apply("foo"))
 			.withTopic(topic)
-			.withMessageCustomizer((mb) -> mb.key("key:foo"))
+			.withMessageCustomizer(mb -> mb.key("key:foo"))
 			.send();
 		pulsarTemplate.newMessage(null)
 			.withTopic(topic)
 			.withSchema(schema)
-			.withMessageCustomizer((mb) -> mb.key("key:null"))
+			.withMessageCustomizer(mb -> mb.key("key:null"))
 			.send();
 		pulsarTemplate.newMessage(payloadFactory.apply("bar"))
 			.withTopic(topic)
-			.withMessageCustomizer((mb) -> mb.key("key:bar"))
+			.withMessageCustomizer(mb -> mb.key("key:bar"))
 			.send();
 	}
 
@@ -161,7 +161,7 @@ class ReactivePulsarListenerTombstoneTests extends ReactivePulsarListenerTestsBa
 			@ReactivePulsarListener(topics = TOPIC, subscriptionName = TOPIC + "-sub-headers",
 					schemaType = SchemaType.STRING, consumerCustomizer = "subscriptionInitialPositionEarliest")
 			Mono<Void> listenWithHeaders(Message<?> msg, @Header(PulsarHeaders.KEY) String key) {
-				var payload = (msg.getPayload() != PulsarNull.INSTANCE) ? msg.getPayload().toString() : null;
+				var payload = msg.getPayload() != PulsarNull.INSTANCE ? msg.getPayload().toString() : null;
 				receivedMessagesWithHeaders.add(new ReceivedMessage<>(payload, key));
 				latchWithHeaders.countDown();
 				return Mono.empty();
@@ -170,7 +170,7 @@ class ReactivePulsarListenerTombstoneTests extends ReactivePulsarListenerTestsBa
 			@ReactivePulsarListener(topics = TOPIC, subscriptionName = TOPIC + "-sub-no-headers",
 					schemaType = SchemaType.STRING, consumerCustomizer = "subscriptionInitialPositionEarliest")
 			Mono<Void> listenWithoutHeaders(Message<Object> msg) {
-				var payload = (msg.getPayload() != PulsarNull.INSTANCE) ? msg.getPayload().toString() : null;
+				var payload = msg.getPayload() != PulsarNull.INSTANCE ? msg.getPayload().toString() : null;
 				receivedMessagesWithoutHeaders.add(new ReceivedMessage<>(payload, null));
 				latchWithoutHeaders.countDown();
 				return Mono.empty();

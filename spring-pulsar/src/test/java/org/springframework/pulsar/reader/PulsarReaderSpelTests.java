@@ -93,7 +93,7 @@ class PulsarReaderSpelTests extends PulsarReaderTestsBase {
 			@SuppressWarnings("unchecked")
 			@Bean
 			PulsarReaderReaderBuilderCustomizer<?> customReaderCustomizer() {
-				return (builder) -> {
+				return builder -> {
 					var conf = ReflectionTestUtils.getField(builder, "conf");
 					var topicNames = (Set<String>) ReflectionTestUtils.getField(conf, "topicNames");
 					CUSTOMIZED_CONTAINERS_TOPIC_NAMES.addAll(topicNames);

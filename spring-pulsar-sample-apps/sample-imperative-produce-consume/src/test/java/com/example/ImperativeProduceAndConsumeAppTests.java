@@ -49,35 +49,35 @@ class ImperativeProduceAndConsumeAppTests implements PulsarTestContainerSupport 
 
 	@Test
 	void produceConsumeWithPrimitiveMessageType(CapturedOutput output) {
-		verifyProduceConsume(output,10, (i) -> "ProduceConsumeWithPrimitiveMessageType:" + i);
+		verifyProduceConsume(output,10, i -> "ProduceConsumeWithPrimitiveMessageType:" + i);
 	}
 
 	@Test
 	void produceConsumeWithComplexMessageType(CapturedOutput output) {
 		verifyProduceConsume(output,10,
-				(i) -> new Foo("ProduceConsumeWithComplexMessageType", i));
+				i -> new Foo("ProduceConsumeWithComplexMessageType", i));
 	}
 
 	@Test
 	void produceConsumeWithPartitions(CapturedOutput output) {
-		verifyProduceConsume(output,10, (i) -> "ProduceConsumeWithPartitions:" + i);
+		verifyProduceConsume(output,10, i -> "ProduceConsumeWithPartitions:" + i);
 	}
 
 	@Test
 	void produceConsumeBatchListener(CapturedOutput output) {
 		verifyProduceConsume(output,100,
-				(i) -> new Foo("ProduceConsumeBatchListener", i));
+				i -> new Foo("ProduceConsumeBatchListener", i));
 	}
 
 	@Test
 	void produceConsumeDefaultMappings(CapturedOutput output) {
-		verifyProduceConsume(output,10, (i) -> new Bar("ProduceConsumeDefaultMappings:" + i));
+		verifyProduceConsume(output,10, i -> new Bar("ProduceConsumeDefaultMappings:" + i));
 	}
 
 	private void verifyProduceConsume(CapturedOutput output, int numExpectedMessages,
 			Function<Integer, Object> expectedMessageFactory) {
 		List < String > expectedOutput = new ArrayList<>();
-		IntStream.range(0, numExpectedMessages).forEachOrdered((i) -> {
+		IntStream.range(0, numExpectedMessages).forEachOrdered(i -> {
 			var msg = expectedMessageFactory.apply(i);
 			expectedOutput.add("++++++PRODUCE %s------".formatted(msg));
 			expectedOutput.add("++++++CONSUME %s------".formatted(msg));

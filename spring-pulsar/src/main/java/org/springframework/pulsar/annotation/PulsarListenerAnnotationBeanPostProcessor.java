@@ -97,7 +97,7 @@ public class PulsarListenerAnnotationBeanPostProcessor<V> extends AbstractPulsar
 
 	private PulsarListenerEndpointRegistry endpointRegistry;
 
-	private String defaultContainerFactoryBeanName = DEFAULT_PULSAR_LISTENER_CONTAINER_FACTORY_BEAN_NAME;
+	private final String defaultContainerFactoryBeanName = DEFAULT_PULSAR_LISTENER_CONTAINER_FACTORY_BEAN_NAME;
 
 	private final PulsarListenerEndpointRegistrar registrar = new PulsarListenerEndpointRegistrar(
 			PulsarListenerContainerFactory.class);
@@ -141,7 +141,7 @@ public class PulsarListenerAnnotationBeanPostProcessor<V> extends AbstractPulsar
 			Map<Method, Set<PulsarListener>> annotatedMethods = MethodIntrospector.selectMethods(targetClass,
 					(MethodIntrospector.MetadataLookup<Set<PulsarListener>>) method -> {
 						Set<PulsarListener> listenerMethods = findListenerAnnotations(method);
-						return (!listenerMethods.isEmpty() ? listenerMethods : null);
+						return listenerMethods.isEmpty() ? null : listenerMethods;
 					});
 			if (annotatedMethods.isEmpty()) {
 				this.nonAnnotatedClasses.add(bean.getClass());
@@ -275,7 +275,7 @@ public class PulsarListenerAnnotationBeanPostProcessor<V> extends AbstractPulsar
 			if (endpoint.getConsumerBuilderCustomizer() != null) {
 				return;
 			}
-			this.beanFactory.getBeanProvider(PulsarListenerConsumerBuilderCustomizer.class).ifUnique((customizer) -> {
+			this.beanFactory.getBeanProvider(PulsarListenerConsumerBuilderCustomizer.class).ifUnique(customizer -> {
 				this.logger
 					.info(() -> String.format("Setting the only registered PulsarListenerConsumerBuilderCustomizer "
 							+ "on the only registered @PulsarListener (%s)", endpoint.getId()));
@@ -366,7 +366,7 @@ public class PulsarListenerAnnotationBeanPostProcessor<V> extends AbstractPulsar
 					}
 				}
 				else if (value instanceof Collection<?> values) {
-					if (values.size() > 0 && values.iterator().next() instanceof String) {
+					if (!values.isEmpty() && values.iterator().next() instanceof String) {
 						for (String prop : (Collection<String>) value) {
 							loadProperty(properties, prop, prop);
 						}

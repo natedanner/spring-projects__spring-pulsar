@@ -37,10 +37,10 @@ public class TestFailuresPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		Provider<TestResultsOverview> testResultsOverview = project.getGradle().getSharedServices()
-				.registerIfAbsent("testResultsOverview", TestResultsOverview.class, (spec) -> {
+				.registerIfAbsent("testResultsOverview", TestResultsOverview.class, spec -> {
 				});
 		project.getTasks().withType(Test.class,
-				(test) -> test.addTestListener(new FailureRecordingTestListener(testResultsOverview, test)));
+				test -> test.addTestListener(new FailureRecordingTestListener(testResultsOverview, test)));
 	}
 
 	private final class FailureRecordingTestListener implements TestListener {

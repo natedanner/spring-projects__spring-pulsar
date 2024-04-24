@@ -42,7 +42,7 @@ public class SpringPulsarBinderSampleApp {
 
 	@Bean
 	ApplicationRunner fooSupplier(StreamBridge streamBridge) {
-		return (args) -> {
+		return args -> {
 			for (int i = 0; i < 10; i++) {
 				var foo = new Foo("fooSupplier:" + i);
 				streamBridge.send("fooSupplier-out-0", foo);
@@ -53,7 +53,7 @@ public class SpringPulsarBinderSampleApp {
 
 	@Bean
 	public Function<Foo, Bar> fooProcessor() {
-		return (foo) -> {
+		return foo -> {
 			var bar = new Bar(foo);
 			LOG.info("++++++PROCESSOR {} --> {}------", foo, bar);
 			return bar;
@@ -62,7 +62,7 @@ public class SpringPulsarBinderSampleApp {
 
 	@Bean
 	public Consumer<Bar> barLogger() {
-		return (bar) -> LOG.info("++++++SINK {}------", bar);
+		return bar -> LOG.info("++++++SINK {}------", bar);
 	}
 
 	record Foo(String value) {

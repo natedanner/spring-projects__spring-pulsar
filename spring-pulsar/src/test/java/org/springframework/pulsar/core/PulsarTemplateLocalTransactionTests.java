@@ -56,21 +56,21 @@ import org.springframework.pulsar.test.support.PulsarTestContainerSupport;
 @Testcontainers(disabledWithoutDocker = true)
 class PulsarTemplateLocalTransactionTests {
 
-	private static PulsarContainer PULSAR_CONTAINER = new PulsarContainer(PulsarTestContainerSupport.getPulsarImage())
+	private static PulsarContainer pulsarContainer = new PulsarContainer(PulsarTestContainerSupport.getPulsarImage())
 		.withTransactions();
 
 	private PulsarClient client;
 
 	@BeforeAll
 	static void startContainer() {
-		PULSAR_CONTAINER.start();
+		pulsarContainer.start();
 	}
 
 	@BeforeEach
 	void setup() throws PulsarClientException {
 		client = PulsarClient.builder()
 			.enableTransaction(true)
-			.serviceUrl(PULSAR_CONTAINER.getPulsarBrokerUrl())
+			.serviceUrl(pulsarContainer.getPulsarBrokerUrl())
 			.build();
 	}
 
@@ -90,7 +90,7 @@ class PulsarTemplateLocalTransactionTests {
 	void whenTemplateOperationsSucceedThenTxnIsCommitted() {
 		String topic = "pttt-send-commit-topic";
 		var pulsarTemplate = newTransactionalTemplate();
-		var results = pulsarTemplate.executeInTransaction((template) -> {
+		var results = pulsarTemplate.executeInTransaction(template -> {
 			var rv = new HashMap<String, MessageId>();
 			rv.put("msg1", template.send(topic, "msg1"));
 			rv.put("msg2", template.send(topic, "msg2"));
@@ -107,7 +107,7 @@ class PulsarTemplateLocalTransactionTests {
 		var pulsarTemplate = spy(newTransactionalTemplate());
 		doThrow(new PulsarException("5150")).when(pulsarTemplate).send(topic, "msg2");
 		assertThatExceptionOfType(PulsarException.class)
-			.isThrownBy(() -> pulsarTemplate.executeInTransaction((template) -> {
+			.isThrownBy(() -> pulsarTemplate.executeInTransaction(template -> {
 				var rv = new HashMap<String, MessageId>();
 				rv.put("msg1", template.send(topic, "msg1"));
 				rv.put("msg2", template.send(topic, "msg2"));
@@ -125,12 +125,12 @@ class PulsarTemplateLocalTransactionTests {
 		doThrow(new PulsarException("5150")).when(pulsarTemplate).send(topic, "msg2");
 		var latch = new CountDownLatch(2);
 		var t1 = new Thread(() -> {
-			pulsarTemplate.executeInTransaction((template) -> template.send(topic, "msg1"));
+			pulsarTemplate.executeInTransaction(template -> template.send(topic, "msg1"));
 			latch.countDown();
 		});
 		var t2 = new Thread(() -> {
 			try {
-				pulsarTemplate.executeInTransaction((template) -> template.send(topic, "msg2"));
+				pulsarTemplate.executeInTransaction(template -> template.send(topic, "msg2"));
 			}
 			finally {
 				latch.countDown();
@@ -146,9 +146,9 @@ class PulsarTemplateLocalTransactionTests {
 	void nestedTransactionsNotAllowed() {
 		String topic = "pttt-nested-topic";
 		var pulsarTemplate = newTransactionalTemplate();
-		assertThatIllegalStateException().isThrownBy(() -> pulsarTemplate.executeInTransaction((template) -> {
+		assertThatIllegalStateException().isThrownBy(() -> pulsarTemplate.executeInTransaction(template -> {
 			template.send(topic, "msg1");
-			template.executeInTransaction((innerTemplate) -> innerTemplate.send(topic, "msg2"));
+			template.executeInTransaction(innerTemplate -> innerTemplate.send(topic, "msg2"));
 			return "nope";
 		})).withMessage("Nested calls to 'executeInTransaction' are not allowed");
 		assertMessagesCommitted(topic, Collections.emptyList());
@@ -158,7 +158,7 @@ class PulsarTemplateLocalTransactionTests {
 	void transactionsNotAllowedWithNonTransactionalTemplate() {
 		var pulsarTemplate = newTransactionalTemplate();
 		pulsarTemplate.transactions().setEnabled(false);
-		assertThatIllegalStateException().isThrownBy(() -> pulsarTemplate.executeInTransaction((template) -> "boom"))
+		assertThatIllegalStateException().isThrownBy(() -> pulsarTemplate.executeInTransaction(template -> "boom"))
 			.withMessage("This template does not support transactions");
 	}
 

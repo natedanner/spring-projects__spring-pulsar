@@ -129,7 +129,7 @@ class ResolvedTests {
 		void exceptionDoesReturnReason() {
 			var resolved = Resolved.failed("5150");
 			assertThat(resolved.exception()).hasValueSatisfying(
-					(ex) -> assertThat(ex).isInstanceOf(IllegalArgumentException.class).hasMessage("5150"));
+					ex -> assertThat(ex).isInstanceOf(IllegalArgumentException.class).hasMessage("5150"));
 		}
 
 		@Test

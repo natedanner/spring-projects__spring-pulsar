@@ -17,8 +17,8 @@ public class SonarQubeConventionsPlugin implements Plugin<Project> {
 	@Override
 	public void apply(final Project project) {
 		project.getPluginManager().apply(SonarQubePlugin.class);
-		project.getExtensions().configure(SonarQubeExtension.class, (sonarExtension) ->
-				sonarExtension.properties((sonarProperties) -> {
+		project.getExtensions().configure(SonarQubeExtension.class, sonarExtension ->
+				sonarExtension.properties(sonarProperties -> {
 					sonarProperties.property("sonar.projectName", project.getName());
 					sonarProperties.property("sonar.jacoco.reportPath", project.getBuildDir().getName() + "/jacoco.exec");
 					sonarProperties.property("sonar.links.homepage", ProjectLinks.HOMEPAGE.link());

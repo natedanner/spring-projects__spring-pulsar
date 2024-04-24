@@ -171,9 +171,9 @@ class ReactivePulsarListenerSpelTests extends ReactivePulsarListenerTestsBase {
 		@Test
 		void containerFactoryDerivedFromAttribute(
 				@Autowired ReactivePulsarListenerContainerFactory<String> containerFactory) {
-			verify(containerFactory).createListenerContainer(argThat(endpoint -> endpoint.getId().equals("foo")));
-			verify(containerFactory).createListenerContainer(argThat(endpoint -> endpoint.getId().equals("bar")));
-			verify(containerFactory).createListenerContainer(argThat(endpoint -> endpoint.getId().equals("zaa")));
+			verify(containerFactory).createListenerContainer(argThat(endpoint -> "foo".equals(endpoint.getId())));
+			verify(containerFactory).createListenerContainer(argThat(endpoint -> "bar".equals(endpoint.getId())));
+			verify(containerFactory).createListenerContainer(argThat(endpoint -> "zaa".equals(endpoint.getId())));
 		}
 
 		@EnablePulsar
@@ -383,7 +383,7 @@ class ReactivePulsarListenerSpelTests extends ReactivePulsarListenerTestsBase {
 
 			@Bean
 			ReactivePulsarListenerMessageConsumerBuilderCustomizer<?> customConsumerCustomizer() {
-				return (builder) -> {
+				return builder -> {
 					var conf = ReflectionTestUtils.getField(builder, "consumerSpec");
 					assertThat(conf).isNotNull();
 					CUSTOMIZED_CONTAINERS_SUBSCRIPTION_NAMES

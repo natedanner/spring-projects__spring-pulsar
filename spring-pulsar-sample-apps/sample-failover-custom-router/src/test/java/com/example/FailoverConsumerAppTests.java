@@ -49,13 +49,13 @@ class FailoverConsumerAppTests implements PulsarTestContainerSupport {
 	@Test
 	void produceConsumeWithPrimitiveMessageType(CapturedOutput output) {
 		List <String> expectedOutput = new ArrayList<>();
-		IntStream.range(0, 10).forEachOrdered((i) -> {
+		IntStream.range(0, 10).forEachOrdered(i -> {
 			expectedOutput.add("++++++PRODUCE_0 hello_0------");
 			expectedOutput.add("++++++PRODUCE_1 hello_1------");
 			expectedOutput.add("++++++PRODUCE_2 hello_2------");
 		});
 		Awaitility.waitAtMost(Duration.ofSeconds(15))
-				.untilAsserted(() -> assertThat(output).satisfies((out) -> {
+				.untilAsserted(() -> assertThat(output).satisfies(out -> {
 					assertThat(output).contains(expectedOutput);
 					assertListenerConsumedNumMessagesFromSinglePartitionOnly(0, out.toString());
 					assertListenerConsumedNumMessagesFromSinglePartitionOnly(1, out.toString());

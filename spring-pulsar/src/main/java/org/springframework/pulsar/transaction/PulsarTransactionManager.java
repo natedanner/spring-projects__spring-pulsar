@@ -84,7 +84,7 @@ public class PulsarTransactionManager extends AbstractPlatformTransactionManager
 	@Override
 	protected boolean isExistingTransaction(Object transaction) {
 		var txObject = asPulsarTxObject(transaction);
-		return (txObject.getResourceHolder() != null);
+		return txObject.getResourceHolder() != null;
 	}
 
 	@Override

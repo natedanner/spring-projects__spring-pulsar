@@ -124,7 +124,7 @@ public class MethodPulsarReaderEndpoint<V> extends AbstractPulsarReaderEndpoint<
 		ResolvableType messageType = resolvableType(messageParameter);
 		schemaResolver.resolveSchema(schemaType, messageType)
 			.ifResolvedOrElse(pulsarContainerProperties::setSchema,
-					(ex) -> this.logger
+					ex -> this.logger
 						.warn(() -> "Failed to resolve schema for type %s - will default to BYTES (due to: %s)"
 							.formatted(schemaType, ex.getMessage())));
 
